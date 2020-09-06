@@ -1,7 +1,6 @@
 ---
 layout: post
 title:  "Why learn Ancient Greek?"
-date:   2020-07-11 20:16:27 +0100
 ---
 
 Ancient Greek is not spoken anymore nor taught as much in schools. Every great literary work written in it has been translated through and through, in almost every language, by many esteemed classicists. Most of all, Ancient Greek is extremely complex, with all those dialects, rules, exceptions, and ghastly irregular verbs... Why dedicate many hours of your life to learning this dead language?
