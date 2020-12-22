@@ -5,13 +5,13 @@ title:  "Why learn Ancient Greek?"
 
 Ancient Greek is not spoken anymore nor taught as much in schools. Every great literary work written in it has been translated through and through, in almost every language, by many esteemed classicists. Most of all, Ancient Greek is extremely complex, with all those dialects, rules, exceptions, and ghastly irregular verbs... Why dedicate many hours of your life to learning this dead language?
 
-The main reasons I was given by fellow students from my school who were trying to recruit new classicists were the following:
+The main reasons I was given by fellow students from my school who were trying to recruit new hellenists were the following:
 
 - It helps us understand our language (French) better
 - It helps us memorise the names of terms and concepts in a variety of subjects, namely Biology, Physics, Philosophy
 - It helps us develop our rational mind
 
-While they are all true to some extent, these reasons were extremely vague and unappealing. This sort of missionary work is rarely successful, like trying to convince a young person to stop smoking by telling them that they will die otherwise. It is simply too abstract, so it enters one ear and exits the other.
+While they are all true to some extent, these reasons were extremely vague and unappealing. This sort of missionary work is rarely successful, it is simply too abstract, so it enters one ear and exits the other.
 
 Besides, Latin can do all of the above, and we had to do one year of Latin before choosing to study any Ancient Greek at all. Why start all over again?
 
