@@ -4,4 +4,4 @@ title: About
 permalink: /about/
 ---
 
-This is a website about Ancient Greek, along with some other languages thrown in the mix. 
+This is a website about Ancient Greek, along with some other languages thrown into the mix. 
