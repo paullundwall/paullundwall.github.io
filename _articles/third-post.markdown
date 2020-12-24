@@ -3,7 +3,7 @@ layout: post
 title:  "In vino veritas"
 ---
 
-There is no doubt that the Greeks liked to drink, and one has to look no further than in their songs and poems. In fact, some of the earliest written musical compositions in history are Greek drinking songs. Here are some examples, along with my attempts at translating them:
+There is no doubt that the Greeks liked to drink, and one has to look no further than their songs and poems. In fact, some of the earliest written musical compositions in history are Greek drinking songs. Here are some examples, along with my own translations:
 
 ```
 Ἡ γῆ μέλαινα πίνει,

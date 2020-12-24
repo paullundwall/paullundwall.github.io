@@ -5,9 +5,9 @@ title:  "Homeric epithets and the dactylic hexameter"
 
 Everyone is familiar with Homeric epithets, whether you are French and know flowery-bearded Charlemagne, English and know Grendel the shepherd of evil, German and know Siegfried the dragon-slayer... Of course, as the name indicates, Homeric epithets were first used, and abundantly so, by Homer in his _Iliad_ and _Odyssey_.
 
-Achilles leader of men, Diomedes breaker of horses, Odysseus raider of cities... This manner of introducing characters is something we all strongly associate with epic poetry, as it is often repeated and gives off a serious and solemn tone. Besides being a way to set the mood, a Homeric epithet also has a practical purpose, for the performer as well as for the listener. They can play the role of a motif, which could be used by the performer as a checkpoint, as one can easily get lost when one has so many lines to learn, but also help the audience remember a character, or at least on which side they are on. More importantly, such epithets were an effective tool for poets that helped completing a line in the appropriate metre. I will be looking into that with a few specific examples.
+Achilles leader of men, Diomedes breaker of horses, Odysseus raider of cities... This manner of introducing characters is something we all strongly associate with epic poetry, as it is often repeated and gives off a serious and solemn tone. Whilst also being a way to establish the tone, a Homeric epithet also has a practical purpose, for the performer as well as for the listener. They can play the role of a motif, which could be used by the performer as a checkpoint, as one can easily get lost when one has so many lines to learn, but also help the audience remember a character, or at least on which side they are on. More importantly, such epithets were an effective tool for poets to ensure the line was completed in the appropriate metre. I will be looking into that with a few specific examples.
 
-One would be θῡμολέοντα, an epithet for Heracles as well as Achilles, meaning lion-hearted. The word fits perfectly the last two feet of a dactylic hexameter being a dactyl (-uu) followed by a trochee (-u) or a spondee (--). Indeed the upsilon has a circumflex accent, and the omicron is followed by two consonants, meaning they are both long syllables. Here is an example from the _Iliad_, Book Five:
+One would be θῡμολέοντα, an epithet for Heracles as well as Achilles, meaning lion-hearted. The word perfectly fits the last two feet of a dactylic hexameter being a dactyl (-uu) followed by a trochee (-u) or a spondee (--). Indeed the upsilon has a circumflex accent, and the omicron is followed by two consonants, meaning they are both long syllables. Here is an example from the _Iliad_, Book Five:
 
 ```
 ἀλλ᾽ οἷόν τινά φασι βίην Ἡρακληείην
@@ -53,9 +53,9 @@ So far we have looked at dactyls, which flow very easily, but some Homeric epith
 from the time when first they parted in strife
 Atreus' son, king of men, and brilliant Achilles.
 ```
-The second line flows in a perfect series of dactyls, only ἄναξ ἀνδρῶν makes two spondees in the middle of it. Indeed, the alpha before the xi is long, as is the alpha before the two consonants of nu and delta, as is the circumflexed omega, then followed by the long diphtong of alpha iota in the καὶ. This series of long syllables slows the pace of the poem and gives an effect of solemnity, almost majesty, which I think conveys beautifully the meaning of the epithet.
+The second line flows in a perfect series of dactyls, only ἄναξ ἀνδρῶν makes two spondees in the middle of it. Indeed, the alpha before the xi is long, as is the alpha before the two consonants of nu and delta, and the circumflexed omega, then followed by the long diphtong of alpha iota in the καὶ. This series of long syllables slows the pace of the poem and gives an effect of solemnity, almost majesty, which I think beautifully conveys the meaning of the epithet.
 
-As mentioned before, a Homeric epithet can act as a checkpoint for the performer, and that means that it follows a same pattern, and is used in the same way each time. Essentially, the Homeric epithet should be found in the same place in the dactylic hexameter. Here is an example from the _Iliad_, Book Two:
+As mentioned before, a Homeric epithet can act as a checkpoint for the performer, and that means that it follows the same pattern, and is used in the same way each time. Essentially, the Homeric epithet should be found in the same place in the dactylic hexameter. Here is an example from the _Iliad_, Book Two:
 
 ```
 τόν ῥ᾽ ἔτεκεν Ῥήνη ὑπ᾽ Ὀϊλῆϊ πτολιπόρθῳ.
@@ -73,7 +73,7 @@ beseeching me to do honour to Achilles, sacker of cities.
 
 As you can see, the syllable lengths of πτολίπορθον (uu-u) along with the fact that it starts with two consonants pi and tau, makes it optimal for the end of a line, which is where one would usually find the epithet when reading the _Iliad_.
 
-Let us now compare two different usages in a dactylic hexameter of a same Homeric epithet. It is rare to find a Homeric epithet used in two different ways. It is usually the case when they are separated by many lines, or when they are found in two different books entirely. 
+Let us now compare two different usages in a dactylic hexameter of the same Homeric epithet. It is rare to find a Homeric epithet used in two different ways. Usually, they are separated by many lines, or even found in two different books entirely. 
 
 The epithet ἱππόδαμος, meaning horse tamer, would be an example of that. Both cases have a different form, as one is used in the singular genitive form (ἱπποδάμοιο), since it is attributed to Nestor, and the other one is in the plural dative form (ἱπποδάμοισιν), since it is attributed to the Trojans. That should not change anything though, since they both have the same syllable length (-uu-u). Here is the first case in the _Odyssey_, Book Three:
 
@@ -97,4 +97,4 @@ put up a good fight against the horse-taming Trojans?
 
 In this case, the first dactyl is effectively used as the second foot of the line, but the trochee is then transformed into a dactyl with the help of a short epsilon from ἐγείρομεν, thus constituting a feminine cesura. The line is purely constitued of dactyls without any spondees, and this rhythm could very well suggest the sound of a galloping horse. As you have probably noticed, these were taken out of two different epic poems, so it would not make much sense for them to be coherent with one another, but it is interesting to note here the flexibility of the Greek dactylic hexameter, which is not a given for every language.
 
-Besides giving that grave tone to epic poetry, Homeric epithets serve a poetic purpose, as they are carefully chosen to not only have their vowel lengths often reflect the meaning of the epithet, but also have the vowel lengths optimal for placing them in a dactylic hexameter in such a way that they are easily remembered and flow well with the rhythm as well as the story.
+Besides providing a grave tone to epic poetry, Homeric epithets serve a poetic purpose, as they are carefully chosen to not only have their vowel lengths often reflect the meaning of the epithet, but also have the vowel lengths optimal for placing them in a dactylic hexameter in such a way that they are easily remembered and flow well with the rhythm as well as the story.

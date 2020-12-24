@@ -5,9 +5,9 @@ title:  "The music of French, English, and Greek poetry"
 
 We have had a few passages from the Homeric epics as well as some from ancient tragedies to translate in Greek class, but we did not have the time to tackle the subject of metre, recitation, and the general music of Greek poetry. I decided to learn about it on my own, and I will be attempting to compare it to English and French poetry, with which I am more familiar.
 
-Poetry is an art of creation, and is founded on language. The poet's work is to effectively use the language and its specific characteristics to give an impression, convey an emotion, etc. Therefore he needs to make use of the language's musicality. French, English, and Ancient Greek differ immensely in terms of music.
+Poetry is an art of creation, and is founded on language. The poet's work is to effectively use the language and its specific characteristics to give an impression, convey an emotion, etc. Therefore he needs to make use of the language's musicality. French, English, and Ancient Greek differ immensely in terms of this music.
 
-French has what we call a rhythmical metre, meaning that the length of a poetic line is determined simply by the number of syllables in it. Typically, they are 8, 10, or 12 syllables long. That is a very unsophisticated way to use rhythm, so French poetry makes up for it with rhyme, with a whole system of poor, sufficient, and rich rhymes.
+French has what is known as a rhythmical metre, meaning that the length of a poetic line is determined simply by the number of syllables in it. Typically, they are 8, 10, or 12 syllables long. That is a very unsophisticated way to use rhythm, so French poetry makes up for it with rhyme, with a whole system of poor, sufficient, and rich rhymes.
 
 A rhyme is poor when both rhyming words only have one common sound, like bee and tree.
 A rhyme is sufficient when both words have two common sounds, like tree and free.
@@ -16,7 +16,7 @@ The general rule is that one should avoid using poor rhymes and be consistent wi
 
 A French poet would also needs to alternate between masculine and feminine rhymes. A feminine rhyme is one that contains a silent e like "femme" and "flamme", and a masculine one is one that does not, like "grand" and "prend".
 
-In English, the metre plays a greater role. It uses what we call a qualitative metre. The length of a line is not determined by the number of syllables, but by the number of feet, each containing a number of syllables, stressed or unstressed. We have for instance the iambic pentameter:
+In English, the metre plays a greater role. It uses what we call a qualitative metre. The length of a line is not determined by the number of syllables, but by the number of feet, each containing a number of syllables, stressed or unstressed. For instance we have the iambic pentameter:
 
 ```
 If music be the food of love, play on;
@@ -34,7 +34,7 @@ Of course, in some case, other feet are used, like the anapest, and dactyl, but 
 
 Ancient Greek is another story altogether, and very foreign to anyone who only speaks European languages.
 
-Rhymes are practically nonexistant in Greek poetry, and when they are used, they are only a small stylistic device, and never consistent. Greek revolves greatly around rhythm and metre, but not in the same way an English-speaking person would imagine.
+Rhymes are practically nonexistant in Greek poetry, and when they are used, they are only a small stylistic device, and never consistent. Greek revolves greatly around rhythm and metre, but not in the way an English person would imagine.
 
 The Ancient Greek metre is not qualitative but quantitative, meaning that it a line is not composed of a succession of stressed and unstressed syllables, but short and long syllables. An iamb for example would not be an unstressed syllable followed by a stressed syllable (u /) but rather a short syllable followed by a long syllable (u -).
 
