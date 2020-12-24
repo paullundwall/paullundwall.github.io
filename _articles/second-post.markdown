@@ -7,7 +7,7 @@ We have had a few passages from the Homeric epics as well as some from ancient t
 
 Poetry is an art of creation, and is founded on language. The poet's work is to effectively use the language and its specific characteristics to give an impression, convey an emotion, etc. Therefore he needs to make use of the language's musicality. French, English, and Ancient Greek differ immensely in terms of music.
 
-French has what we call a rhythmical metre, meaning that the length of a poetic line is determined simply by the number of syllables in it. Typically, they are 8, 10, or 12 syllables long. That is a very unsophisticated way to use rythm, so French poetry makes up for it with rhyme, with a whole system of poor, sufficient, and rich rhymes.
+French has what we call a rhythmical metre, meaning that the length of a poetic line is determined simply by the number of syllables in it. Typically, they are 8, 10, or 12 syllables long. That is a very unsophisticated way to use rhythm, so French poetry makes up for it with rhyme, with a whole system of poor, sufficient, and rich rhymes.
 
 A rhyme is poor when both rhyming words only have one common sound, like bee and tree.
 A rhyme is sufficient when both words have two common sounds, like tree and free.
@@ -34,7 +34,7 @@ Of course, in some case, other feet are used, like the anapest, and dactyl, but 
 
 Ancient Greek is another story altogether, and very foreign to anyone who only speaks European languages.
 
-Rhyming is practically nonexistant in Greek poetry, and when it is used, it is only a small stylistic device, and never consistent. Greek revolves greatly around rhythm and metre, but not in the same way an English-speaking person could imagine.
+Rhymes are practically nonexistant in Greek poetry, and when they are used, they are only a small stylistic device, and never consistent. Greek revolves greatly around rhythm and metre, but not in the same way an English-speaking person would imagine.
 
 The Ancient Greek metre is not qualitative but quantitative, meaning that it a line is not composed of a succession of stressed and unstressed syllables, but short and long syllables. An iamb for example would not be an unstressed syllable followed by a stressed syllable (u /) but rather a short syllable followed by a long syllable (u -).
 
@@ -46,7 +46,17 @@ A long syllable is one that has a long vowel (omega or êta), a short vowel foll
 
 Sing, goddess, of Achilles son Peleus's wrath
 ```
-This is what is called a dactylic hexameter: four feet (spondee or dactyl), followed by a dactyl followed by a trochee. The dactylic hexameter is found in all kinds of poetry but especially epic poetry, the Aeneid included. Unlike English, Greek does not arrange itself naturally into any type of feet. The dactylic hexameter might be just as common as the iambic trimeter |x-u-|x-u-|x-u-| (x being a short or long vowel):
+This is what is called a dactylic hexameter: four feet, either spondees (--) or dactyls (-uu), followed by a dactyl (-uu) followed by a trochee(-u) or spondee(--). For instance all of the following scansions can be dactylic hexameters:
+
+|-uu|-uu|-uu|-uu|-uu|-u|
+
+|--|--|-uu|--|-uu|--|
+
+|-uu|-uu|--|--|-uu|-u|
+
+and so on...
+
+ The dactylic hexameter is found in all kinds of poetry but especially epic poetry, the Aeneid included. Unlike English, Greek does not arrange itself naturally into any type of feet. The dactylic hexameter might be just as common as the iambic trimeter |x-u-|x-u-|x-u-| (x being a short or long vowel):
 
 ```
 πόλλ' οἶδ' ἀλώπηξ, ἀλλ' ἐχῖνος ἓν μέγα
@@ -61,7 +71,7 @@ is one great reason why I think this language is so musically unique and beautif
 
 Like any piece of music, Ancient greek does not just have a certain rhythm, but also pitch. Indeed, the accents you see are not stress accents like you would find in Western languages, but pitch accents, like you would find in Mandarin Chinese. 
 
-While it is not certain how an _aoidos_ would sing his epic poem, and accompanied by which instrument, some have speculated that pitch accents cntributed more to the music than what we could think. There have been some modern interpretations in which the performer sings only two notes: one for when there is no accent and one slightly higher pitched note for when there is an accent. 
+While it is not certain how an _aoidos_ would sing his epic poem, and accompanied by which instrument, some have speculated that pitch accents contributed more to the music than what we could think. There have been some modern interpretations in which the performer sings only two notes: one for when there is no accent and one slightly higher pitched note for when there is an accent. 
 
 While it is unlikely that poems were sung in such a fashion, it would not be outlandish to assume that they played an important role in how the ears received the poem, especially considering the fact that accents and long vowels often came hand in hand.
 
