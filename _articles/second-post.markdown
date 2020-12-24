@@ -47,13 +47,13 @@ A long syllable is one that has a long vowel (omega or êta), a short vowel foll
 Sing, goddess, of Achilles son Peleus's wrath
 ```
 This is what is called a dactylic hexameter: four feet, either spondees (--) or dactyls (-uu), followed by a dactyl (-uu) followed by a trochee(-u) or spondee(--). For instance all of the following scansions can be dactylic hexameters:
-
+```
 |-uu|-uu|-uu|-uu|-uu|-u|
 
 |--|--|-uu|--|-uu|--|
 
 |-uu|-uu|--|--|-uu|-u|
-
+```
 and so on...
 
  The dactylic hexameter is found in all kinds of poetry but especially epic poetry, the Aeneid included. Unlike English, Greek does not arrange itself naturally into any type of feet. The dactylic hexameter might be just as common as the iambic trimeter |x-u-|x-u-|x-u-| (x being a short or long vowel):
