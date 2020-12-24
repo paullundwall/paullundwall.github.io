@@ -56,7 +56,7 @@ This is what is called a dactylic hexameter: four feet, either spondees (--) or 
 ```
 and so on...
 
- The dactylic hexameter is found in all kinds of poetry but especially epic poetry, the Aeneid included. Unlike English, Greek does not arrange itself naturally into any type of feet. The dactylic hexameter might be just as common as the iambic trimeter |x-u-|x-u-|x-u-| (x being a short or long vowel):
+ The dactylic hexameter is found in all kinds of poetry but especially epic poetry, the Aeneid included. Unlike English, Greek does not arrange itself naturally into any type of feet. The dactylic hexameter might be just as common as the iambic trimeter x-u-x-u-x-u- (x being a short or long vowel):
 
 ```
 πόλλ' οἶδ' ἀλώπηξ, ἀλλ' ἐχῖνος ἓν μέγα
