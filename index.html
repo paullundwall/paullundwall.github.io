@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuklops: A Wargaming Experiment</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 800px;
+            width: 100%;
+            margin: 80px auto 0 auto;
+        }
+        
+        h1 {
+            font-size: clamp(2.5rem, 8vw, 4rem);
+            font-weight: 600;
+            color: #1a1a1a;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
+            color: #666666;
+            font-weight: 300;
+            letter-spacing: 0.05em;
+            margin-bottom: 40px;
+        }
+        
+        .wargames {
+            margin-top: 60px;
+        }
+        
+        .wargames h2 {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+        }
+        
+        .wargame-link {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #f8f9fa;
+            color: #1a1a1a;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border: 1px solid #e9ecef;
+        }
+        
+        .wargame-link:hover {
+            background: #e9ecef;
+            transform: translateY(-1px);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 40px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Kuklops</h1>
+        <div class="subtitle">A Wargaming Experiment</div>
+        
+        <div class="wargames">
+            <h2>Wargames</h2>
+            <a href="Petroleum/index.html" class="wargame-link">Petroleum</a>
+        </div>
+    </div>
+</body>
+</html> 
