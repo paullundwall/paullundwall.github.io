@@ -199,19 +199,18 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function showRulesModal() {
-    const modal = document.getElementById('rulesModal');
-    const startGameBtn = document.getElementById('startGame');
+    document.getElementById('rulesModal').style.display = 'block';
     
-    // Change button text and function based on game state
+    // Show appropriate button based on game state
     if (gameState.gameStarted) {
-        startGameBtn.textContent = 'Close';
-        startGameBtn.onclick = closeRulesModal;
+        // Game is running, show close button
+        document.getElementById('startGame').style.display = 'none';
+        document.getElementById('closeRules').style.display = 'inline-block';
     } else {
-        startGameBtn.textContent = 'Start Game';
-        startGameBtn.onclick = startGame;
+        // Game hasn't started, show start game button
+        document.getElementById('startGame').style.display = 'inline-block';
+        document.getElementById('closeRules').style.display = 'none';
     }
-    
-    modal.style.display = 'block';
 }
 
 function closeRulesModal() {
@@ -219,6 +218,12 @@ function closeRulesModal() {
 }
 
 function setupEventListeners() {
+    // Start game button
+    document.getElementById('startGame').addEventListener('click', startGame);
+    
+    // Close rules button
+    document.getElementById('closeRules').addEventListener('click', closeRulesModal);
+    
     // Action buttons
     document.getElementById('buyLandBtn').addEventListener('click', handleBuyLand);
     document.getElementById('drillOilBtn').addEventListener('click', handleDrillOil);
