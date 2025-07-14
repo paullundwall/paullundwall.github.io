@@ -199,13 +199,26 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function showRulesModal() {
-    document.getElementById('rulesModal').style.display = 'block';
+    const modal = document.getElementById('rulesModal');
+    const startGameBtn = document.getElementById('startGame');
+    
+    // Change button text and function based on game state
+    if (gameState.gameStarted) {
+        startGameBtn.textContent = 'Close';
+        startGameBtn.onclick = closeRulesModal;
+    } else {
+        startGameBtn.textContent = 'Start Game';
+        startGameBtn.onclick = startGame;
+    }
+    
+    modal.style.display = 'block';
+}
+
+function closeRulesModal() {
+    document.getElementById('rulesModal').style.display = 'none';
 }
 
 function setupEventListeners() {
-    // Start game button
-    document.getElementById('startGame').addEventListener('click', startGame);
-    
     // Action buttons
     document.getElementById('buyLandBtn').addEventListener('click', handleBuyLand);
     document.getElementById('drillOilBtn').addEventListener('click', handleDrillOil);
