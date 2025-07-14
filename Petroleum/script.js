@@ -218,6 +218,7 @@ function setupEventListeners() {
     // Menu buttons
     document.getElementById('homeBtn').addEventListener('click', goHome);
     document.getElementById('resetBtn').addEventListener('click', resetGame);
+    document.getElementById('rulesBtn').addEventListener('click', showRulesModal);
     
     // Toggle log button
     document.getElementById('toggleLogBtn').addEventListener('click', toggleMessageLog);
