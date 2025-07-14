@@ -14,38 +14,48 @@
                 <h2>Petroleum & Sons - Rules & How to Play</h2>
                 <div class="rules-content">
                     <h3>Objective</h3>
-                    <p>Build a dominant oil empire by controlling oil-rich territories, managing drilling operations, and distributing oil to consumer nations. Compete or collude with your rival, Standard Oil Corporation.</p>
+                    <p>Build a dominant oil empire by leasing land in oil-rich countries, managing drilling operations, and distributing oil to consumer nations. Compete or collude with your rival, Standard Oil Corporation.</p>
                     
                     <h3>Game Setup</h3>
                     <ul>
                         <li>You start with $10,000 and basic equipment</li>
-                        <li>6 territories are available for purchase</li>
-                        <li>Each territory has different oil reserves and costs</li>
+                        <li>6 countries offer land for lease with different oil reserves and costs</li>
+                        <li>Each territory has different oil reserves and production rates</li>
                         <li>Consumer countries need oil deliveries</li>
                     </ul>
                     
                     <h3>Turn Structure</h3>
                     <ol>
-                        <li><strong>Purchase Phase:</strong> Buy oil-rich territories</li>
-                        <li><strong>Drilling Phase:</strong> Set up drilling operations (produces oil automatically)</li>
+                        <li><strong>Purchase Phase:</strong> Lease land in oil-rich countries</li>
+                        <li><strong>Drilling Phase:</strong> Set up drilling operations and upgrades</li>
                         <li><strong>Trade Phase:</strong> Export oil to consumer countries</li>
                         <li><strong>Negotiation Phase:</strong> Compete or collude with rival company</li>
                     </ol>
                     
                     <h3>Actions</h3>
                     <ul>
-                        <li><strong>Buy Land:</strong> Purchase territories with oil reserves</li>
-                        <li><strong>Drill Oil:</strong> Install drilling equipment (costs money, produces oil automatically)</li>
+                        <li><strong>Buy Land:</strong> Lease territories with oil reserves (one per turn)</li>
+                        <li><strong>Drill Oil:</strong> Install drilling equipment ($1,000 cost, produces oil automatically)</li>
+                        <li><strong>Upgrade Drill:</strong> Improve production by 25% per level (max 3 levels)</li>
                         <li><strong>Export:</strong> Sell oil to consumer countries for profit</li>
-                        <li><strong>Collude:</strong> Cooperate with Standard Oil to fix prices (affects next turn pricing)</li>
-                        <li><strong>Compete:</strong> Launch aggressive market competition against Standard Oil</li>
+                        <li><strong>Collude:</strong> Cooperate with Standard Oil (no cost)</li>
+                        <li><strong>Compete:</strong> Launch aggressive market competition (no cost)</li>
                         <li><strong>Note:</strong> You can only use either Collude OR Compete once per turn</li>
                     </ul>
                     
-                    <h3>New Features</h3>
+                    <h3>Negotiation Mechanics</h3>
                     <ul>
-                        <li><strong>Limited Purchases:</strong> Only one territory can be purchased per turn</li>
-                        <li><strong>Drill Upgrades:</strong> Upgrade drilling sites to increase production by 25% per level (max 3 levels)</li>
+                        <li><strong>Both Collude:</strong> Oil prices increase by 20% for both companies</li>
+                        <li><strong>Both Compete:</strong> Oil prices decrease by 20% for both companies</li>
+                        <li><strong>Mixed Strategy:</strong> Competitor gets 40% higher prices, colluder gets 30% lower prices</li>
+                        <li><strong>Price Effects:</strong> Applied immediately and last for the entire next turn</li>
+                        <li><strong>AI Strategy:</strong> Standard Oil chooses randomly (50/50 chance)</li>
+                    </ul>
+                    
+                    <h3>Important Notes</h3>
+                    <ul>
+                        <li><strong>Oil Depletion:</strong> Territories become exhausted when reserves reach zero</li>
+                        <li><strong>Phase Control:</strong> You must manually end each phase, even when no actions are available</li>
                         <li><strong>Dynamic Pricing:</strong> All costs, reserves, and prices are randomized each game</li>
                         <li><strong>Historical Setting:</strong> Game starts in 1955, each turn represents one year</li>
                     </ul>
@@ -104,7 +114,7 @@
                 <!-- Game Board -->
                 <div id="gameBoard">
                     <div class="territories-section">
-                        <h3>Available Territories</h3>
+                        <h3>Land for Lease</h3>
                         <div id="territories" class="territories-grid">
                             <!-- Territories will be populated by JavaScript -->
                         </div>

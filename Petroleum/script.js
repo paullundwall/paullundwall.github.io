@@ -11,6 +11,8 @@ let gameState = {
     selectedConsumer: null,
     collusionActive: false,
     collusionSuccess: false,
+    playerChoice: null, // 'collude', 'compete', or null
+    rivalChoice: null,
     startYear: 1955,
     territoriesPurchasedThisTurn: 0,
     negotiationUsedThisTurn: false,
@@ -249,6 +251,8 @@ function startGame() {
     gameState.negotiationUsedThisTurn = false;
     gameState.collusionActive = false;
     gameState.collusionSuccess = false;
+    gameState.playerChoice = null;
+    gameState.rivalChoice = null;
     
     // Reset player data
     player.money = 10000;
@@ -350,11 +354,21 @@ function renderConsumers() {
         consumerDiv.className = 'consumer';
         consumerDiv.setAttribute('data-consumer-id', consumer.id);
         
+        const playerPrice = consumer.playerPricePerBarrel || consumer.pricePerBarrel;
+        const rivalPrice = consumer.rivalPricePerBarrel || consumer.pricePerBarrel;
+        
+        let priceDisplay;
+        if (consumer.playerPricePerBarrel || consumer.rivalPricePerBarrel) {
+            priceDisplay = `Your Price: $${playerPrice}/barrel<br>Rival Price: $${rivalPrice}/barrel`;
+        } else {
+            priceDisplay = `Price: $${consumer.pricePerBarrel}/barrel`;
+        }
+        
         consumerDiv.innerHTML = `
             <div class="consumer-name">${consumer.name}</div>
             <div class="consumer-demand">
                 Demand: ${consumer.demand} barrels<br>
-                Price: $${consumer.pricePerBarrel}/barrel<br>
+                ${priceDisplay}<br>
                 Relationship: ${consumer.relationship}
                 ${consumer.contract ? `<br>Contract: ${consumer.contract}` : ''}
             </div>
@@ -507,7 +521,7 @@ function handleBuyLand() {
     player.territories.push(territory.id);
     gameState.territoriesPurchasedThisTurn++;
     
-    addMessage(`Successfully purchased ${territory.name} for $${territory.cost.toLocaleString()}`, 'player');
+    addMessage(`Successfully purchased land in ${territory.name} for $${territory.cost.toLocaleString()}`, 'player');
     updateUI();
     renderTerritories();
 }
@@ -597,8 +611,9 @@ function handleExport() {
         return;
     }
     
-    // Export oil
-    const revenue = consumer.demand * consumer.pricePerBarrel;
+    // Export oil - use player-specific price if available
+    const pricePerBarrel = consumer.playerPricePerBarrel || consumer.pricePerBarrel;
+    const revenue = consumer.demand * pricePerBarrel;
     player.oil -= consumer.demand;
     player.money += revenue;
     
@@ -620,46 +635,11 @@ function handleNegotiate() {
         return;
     }
     
-    const collusionTypes = ['price_fixing', 'market_division', 'supply_control', 'export_quotas'];
-    const randomType = collusionTypes[Math.floor(Math.random() * collusionTypes.length)];
-    
-    let offer, response;
-    
-    switch (randomType) {
-        case 'price_fixing':
-            offer = "Standard Oil proposes coordinating oil prices to maximize profits";
-            response = Math.random() > 0.5 ? 'accept' : 'reject';
-            break;
-        case 'market_division':
-            offer = "Standard Oil suggests dividing consumer markets between companies";
-            response = Math.random() > 0.4 ? 'accept' : 'reject';
-            break;
-        case 'supply_control':
-            offer = "Standard Oil proposes limiting oil production to increase prices";
-            response = Math.random() > 0.6 ? 'accept' : 'reject';
-            break;
-        case 'export_quotas':
-            offer = "Standard Oil offers to coordinate export quotas";
-            response = Math.random() > 0.5 ? 'accept' : 'reject';
-            break;
-    }
-    
-    addMessage(offer, 'rival');
-    
-    if (response === 'accept') {
-        addMessage("Collusion successful! Oil prices will increase next turn.", 'system');
-        gameState.collusionActive = true;
-        gameState.collusionSuccess = true;
-        rival.strategy = 'cooperative';
-    } else {
-        addMessage("Standard Oil rejected the collusion. Price war begins!", 'system');
-        gameState.collusionActive = true;
-        gameState.collusionSuccess = false;
-        rival.strategy = 'aggressive';
-    }
-    
-    // Mark negotiation as used this turn
+    // Player chooses to collude
+    gameState.playerChoice = 'collude';
     gameState.negotiationUsedThisTurn = true;
+    
+    addMessage("You proposed collusion with Standard Oil.", 'player');
     
     updateUI();
     updatePhaseButtons();
@@ -671,76 +651,14 @@ function handleSabotage() {
         return;
     }
     
-    const competitionCost = 1500;
-    if (player.money < competitionCost) {
-        addMessage("Insufficient funds for competitive action!", 'system');
-        return;
-    }
-    
-    const competitionTypes = ['price_war', 'market_aggression', 'supply_dumping', 'exclusive_deals'];
-    const randomType = competitionTypes[Math.floor(Math.random() * competitionTypes.length)];
-    
-    let action, success;
-    
-    switch (randomType) {
-        case 'price_war':
-            action = "Initiated aggressive price competition";
-            success = Math.random() > 0.4; // 60% success rate
-            break;
-        case 'market_aggression':
-            action = "Launched aggressive marketing campaign";
-            success = Math.random() > 0.3; // 70% success rate
-            break;
-        case 'supply_dumping':
-            action = "Flooded market with cheap oil";
-            success = Math.random() > 0.5; // 50% success rate
-            break;
-        case 'exclusive_deals':
-            action = "Negotiated exclusive consumer contracts";
-            success = Math.random() > 0.6; // 40% success rate
-            break;
-    }
-    
-    player.money -= competitionCost;
-    
-    if (success) {
-        addMessage(`${action} - Competition successful!`, 'player');
-        player.money += 2500; // Net gain of 1000
-        rival.money -= 1000;
-        
-        // Rival becomes aggressive
-        rival.strategy = 'aggressive';
-        
-        // Worsen relationships with consumers (competitive behavior)
-        consumers.forEach(consumer => {
-            if (consumer.relationship === 'allied') {
-                consumer.relationship = 'friendly';
-            } else if (consumer.relationship === 'friendly') {
-                consumer.relationship = 'neutral';
-            } else if (consumer.relationship === 'neutral') {
-                consumer.relationship = 'hostile';
-            }
-        });
-    } else {
-        addMessage(`${action} - Competition failed! Market backlash.`, 'system');
-        rival.strategy = 'aggressive';
-        
-        // Worse relationships due to failed aggressive tactics
-        consumers.forEach(consumer => {
-            if (consumer.relationship === 'friendly') {
-                consumer.relationship = 'neutral';
-            } else if (consumer.relationship === 'neutral') {
-                consumer.relationship = 'hostile';
-            }
-        });
-    }
-    
-    // Mark negotiation as used this turn
+    // Player chooses to compete
+    gameState.playerChoice = 'compete';
     gameState.negotiationUsedThisTurn = true;
+    
+    addMessage("You chose aggressive competition against Standard Oil.", 'player');
     
     updateUI();
     updatePhaseButtons();
-    renderConsumers();
 }
 
 function endTurn() {
@@ -750,10 +668,12 @@ function endTurn() {
         territories.forEach(territory => {
             if (territory.owner === 'player' && territory.drilled && !territory.exhausted) {
                 const actualProduction = Math.round(territory.productionRate * (1 + territory.upgradeLevel * 0.25));
-                totalProduction += actualProduction;
-                territory.oilReserves -= actualProduction;
+                const availableOil = Math.min(actualProduction, territory.oilReserves);
+                totalProduction += availableOil;
+                territory.oilReserves -= availableOil;
                 
                 if (territory.oilReserves <= 0) {
+                    territory.oilReserves = 0;
                     territory.exhausted = true;
                     addMessage(`${territory.name} has been exhausted!`, 'system');
                 }
@@ -795,12 +715,6 @@ function endTurn() {
 function rivalTurn() {
     addMessage("Standard Oil Corporation's turn begins...", 'rival');
     
-    // Apply collusion effects at start of new turn
-    if (gameState.collusionActive) {
-        applyCollusionEffects();
-        gameState.collusionActive = false;
-    }
-    
     // Rival AI logic
     setTimeout(() => {
         rivalBuyLand();
@@ -821,6 +735,10 @@ function rivalTurn() {
                             rivalNegotiation();
                             addMessage("Standard Oil Corporation's turn ends", 'rival');
                             updateUI();
+                            
+                            // Reset negotiation choices for next turn
+                            gameState.playerChoice = null;
+                            gameState.rivalChoice = null;
                             
                             // Check if game should end after rival's turn
                             gameState.currentTurn++;
@@ -850,7 +768,7 @@ function rivalBuyLand() {
             bestTerritory.owner = 'rival';
             rival.territories.push(bestTerritory.id);
             
-            addMessage(`Standard Oil purchased ${bestTerritory.name}`, 'rival');
+            addMessage(`Standard Oil purchased land in ${bestTerritory.name}`, 'rival');
             renderTerritories();
         }
     }
@@ -906,10 +824,12 @@ function rivalProduction() {
     territories.forEach(territory => {
         if (territory.owner === 'rival' && territory.drilled && !territory.exhausted) {
             const actualProduction = Math.round(territory.productionRate * (1 + territory.upgradeLevel * 0.25));
-            totalProduction += actualProduction;
-            territory.oilReserves -= actualProduction;
+            const availableOil = Math.min(actualProduction, territory.oilReserves);
+            totalProduction += availableOil;
+            territory.oilReserves -= availableOil;
             
             if (territory.oilReserves <= 0) {
+                territory.oilReserves = 0;
                 territory.exhausted = true;
                 addMessage(`${territory.name} has been exhausted!`, 'system');
             }
@@ -928,7 +848,8 @@ function rivalExport() {
     
     availableConsumers.forEach(consumer => {
         if (rival.oil >= consumer.demand) {
-            const revenue = consumer.demand * consumer.pricePerBarrel;
+            const pricePerBarrel = consumer.rivalPricePerBarrel || consumer.pricePerBarrel;
+            const revenue = consumer.demand * pricePerBarrel;
             rival.oil -= consumer.demand;
             rival.money += revenue;
             
@@ -938,39 +859,75 @@ function rivalExport() {
 }
 
 function rivalNegotiation() {
-    if (rival.strategy === 'aggressive' && Math.random() > 0.5) {
-        // Attempt competitive action
-        if (rival.money >= 1500) {
-            const success = Math.random() > 0.4; // 60% success rate
-            
-            if (success) {
-                rival.money -= 1500;
-                rival.money += 2500; // Net gain of 1000
-                player.money -= 1000;
-                
-                addMessage(`Standard Oil launched aggressive competition against you!`, 'rival');
-            } else {
-                rival.money -= 1500;
-                addMessage("Standard Oil's competitive action failed!", 'system');
-            }
-        }
+    // Rival AI chooses strategy - always 50/50
+    const rivalChoice = Math.random() > 0.5 ? 'compete' : 'collude';
+    
+    gameState.rivalChoice = rivalChoice;
+    
+    if (rivalChoice === 'compete') {
+        addMessage("Standard Oil chose aggressive competition.", 'rival');
+    } else if (rivalChoice === 'collude') {
+        addMessage("Standard Oil proposed collusion.", 'rival');
+    }
+    
+    // Apply negotiation effects immediately after both companies have chosen
+    if (gameState.playerChoice || gameState.rivalChoice) {
+        applyCollusionEffects();
     }
 }
 
 function applyCollusionEffects() {
-    if (gameState.collusionSuccess) {
-        // Successful collusion - increase all consumer prices
+    const playerChoice = gameState.playerChoice;
+    const rivalChoice = gameState.rivalChoice;
+    
+    // Reset any existing special pricing
+    consumers.forEach(consumer => {
+        delete consumer.playerPricePerBarrel;
+        delete consumer.rivalPricePerBarrel;
+    });
+    
+    if (playerChoice === 'collude' && rivalChoice === 'collude') {
+        // Both collude: prices increase for both companies
         consumers.forEach(consumer => {
-            consumer.pricePerBarrel = Math.round(consumer.pricePerBarrel * 1.15); // 15% increase
+            consumer.pricePerBarrel = Math.round(consumer.pricePerBarrel * 1.20); // 20% increase for both
         });
-        addMessage("Collusion successful! Consumer prices increased across the board.", 'system');
+        addMessage("Both companies colluded! Oil prices increased for everyone.", 'system');
+        
+    } else if (playerChoice === 'collude' && rivalChoice === 'compete') {
+        // Player colludes, rival competes: rival gets high prices, player gets low prices
+        consumers.forEach(consumer => {
+            consumer.playerPricePerBarrel = Math.round(consumer.pricePerBarrel * 0.7); // Player gets 70% of base price
+            consumer.rivalPricePerBarrel = Math.round(consumer.pricePerBarrel * 1.4); // Rival gets 140% of base price
+        });
+        addMessage("You colluded while Standard Oil competed! They get higher prices, you get lower prices.", 'system');
+        
+    } else if (playerChoice === 'compete' && rivalChoice === 'collude') {
+        // Player competes, rival colludes: player gets high prices, rival gets low prices
+        consumers.forEach(consumer => {
+            consumer.playerPricePerBarrel = Math.round(consumer.pricePerBarrel * 1.4); // Player gets 140% of base price
+            consumer.rivalPricePerBarrel = Math.round(consumer.pricePerBarrel * 0.7); // Rival gets 70% of base price
+        });
+        addMessage("You competed while Standard Oil colluded! You get higher prices, they get lower prices.", 'system');
+        
+    } else if (playerChoice === 'compete' && rivalChoice === 'compete') {
+        // Both compete: prices are low for everyone
+        consumers.forEach(consumer => {
+            consumer.pricePerBarrel = Math.round(consumer.pricePerBarrel * 0.8); // 20% decrease for both
+        });
+        addMessage("Both companies competed aggressively! Oil prices dropped for everyone.", 'system');
+        
     } else {
-        // Failed collusion - decrease all consumer prices
-        consumers.forEach(consumer => {
-            consumer.pricePerBarrel = Math.round(consumer.pricePerBarrel * 0.9); // 10% decrease
-        });
-        addMessage("Collusion failed! Price war caused consumer prices to drop.", 'system');
+        // No negotiation actions were taken
+        addMessage("No market manipulation occurred this turn.", 'system');
     }
+    
+    // Update rival strategy based on outcomes
+    if (rivalChoice === 'collude') {
+        rival.strategy = 'cooperative';
+    } else if (rivalChoice === 'compete') {
+        rival.strategy = 'aggressive';
+    }
+    
     renderConsumers();
 }
 
