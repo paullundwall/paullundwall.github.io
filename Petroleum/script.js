@@ -1,7 +1,7 @@
 // Game State
 let gameState = {
     currentTurn: 1,
-    maxTurns: 20,
+    maxTurns: 10,
     currentPhase: 'Purchase',
     phases: ['Purchase', 'Drilling', 'Production', 'Trade', 'Negotiation'],
     currentPhaseIndex: 0,
@@ -11,6 +11,9 @@ let gameState = {
     selectedConsumer: null,
     collusionActive: false,
     collusionSuccess: false,
+    startYear: 1955,
+    territoriesPurchasedThisTurn: 0,
+    negotiationUsedThisTurn: false,
     negotiations: {
         active: false,
         offer: null,
@@ -39,7 +42,7 @@ let rival = {
     strategy: 'competitive' // 'competitive', 'cooperative', 'aggressive'
 };
 
-// Territories Data
+// Territories Data (will be randomized on game start)
 let territories = [
     {
         id: 1,
@@ -47,6 +50,7 @@ let territories = [
         cost: 4000,
         oilReserves: 1000,
         productionRate: 80,
+        upgradeLevel: 0,
         owner: null,
         drilled: false,
         exhausted: false
@@ -57,6 +61,7 @@ let territories = [
         cost: 3500,
         oilReserves: 700,
         productionRate: 70,
+        upgradeLevel: 0,
         owner: null,
         drilled: false,
         exhausted: false
@@ -67,6 +72,7 @@ let territories = [
         cost: 5000,
         oilReserves: 900,
         productionRate: 60,
+        upgradeLevel: 0,
         owner: null,
         drilled: false,
         exhausted: false
@@ -77,6 +83,7 @@ let territories = [
         cost: 3000,
         oilReserves: 600,
         productionRate: 65,
+        upgradeLevel: 0,
         owner: null,
         drilled: false,
         exhausted: false
@@ -87,6 +94,7 @@ let territories = [
         cost: 2500,
         oilReserves: 500,
         productionRate: 55,
+        upgradeLevel: 0,
         owner: null,
         drilled: false,
         exhausted: false
@@ -97,13 +105,40 @@ let territories = [
         cost: 2000,
         oilReserves: 400,
         productionRate: 50,
+        upgradeLevel: 0,
         owner: null,
         drilled: false,
         exhausted: false
     }
 ];
 
-// Consumer Countries Data
+// Randomization function for new games
+function randomizeGameData() {
+    // Randomize territories
+    territories.forEach(territory => {
+        territory.oilReserves = Math.floor(Math.random() * 600) + 400; // 400-1000
+        territory.productionRate = Math.floor(Math.random() * 40) + 40; // 40-80
+        
+        // Calculate cost based on reserves and production rate
+        const baseValue = (territory.oilReserves * 3) + (territory.productionRate * 50);
+        territory.cost = Math.floor(baseValue * (0.8 + Math.random() * 0.4)); // ±20% variation
+        
+        territory.upgradeLevel = 0;
+        territory.owner = null;
+        territory.drilled = false;
+        territory.exhausted = false;
+    });
+    
+    // Randomize consumers
+    consumers.forEach(consumer => {
+        consumer.demand = Math.floor(Math.random() * 80) + 60; // 60-140
+        consumer.pricePerBarrel = Math.floor(Math.random() * 15) + 25; // 25-40
+        consumer.relationship = 'neutral';
+        consumer.contract = null;
+    });
+}
+
+// Consumer Countries Data (will be randomized on game start)
 let consumers = [
     {
         id: 1,
@@ -115,7 +150,7 @@ let consumers = [
     },
     {
         id: 2,
-        name: "Netherlands",
+        name: "West Germany",
         demand: 90,
         pricePerBarrel: 30,
         relationship: 'neutral',
@@ -123,7 +158,7 @@ let consumers = [
     },
     {
         id: 3,
-        name: "Belgium",
+        name: "France",
         demand: 70,
         pricePerBarrel: 32,
         relationship: 'neutral',
@@ -131,7 +166,7 @@ let consumers = [
     },
     {
         id: 4,
-        name: "Switzerland",
+        name: "Japan",
         demand: 60,
         pricePerBarrel: 35,
         relationship: 'neutral',
@@ -139,9 +174,17 @@ let consumers = [
     },
     {
         id: 5,
-        name: "Sweden",
+        name: "Canada",
         demand: 80,
         pricePerBarrel: 29,
+        relationship: 'neutral',
+        contract: null
+    },
+    {
+        id: 6,
+        name: "United Kingdom",
+        demand: 100,
+        pricePerBarrel: 31,
         relationship: 'neutral',
         contract: null
     }
@@ -164,10 +207,15 @@ function setupEventListeners() {
     // Action buttons
     document.getElementById('buyLandBtn').addEventListener('click', handleBuyLand);
     document.getElementById('drillOilBtn').addEventListener('click', handleDrillOil);
+    document.getElementById('upgradeBtn').addEventListener('click', handleUpgrade);
     document.getElementById('exportBtn').addEventListener('click', handleExport);
     document.getElementById('negotiateBtn').addEventListener('click', handleNegotiate);
     document.getElementById('sabotageBtn').addEventListener('click', handleSabotage);
     document.getElementById('endTurnBtn').addEventListener('click', endTurn);
+    
+    // Menu buttons
+    document.getElementById('homeBtn').addEventListener('click', goHome);
+    document.getElementById('resetBtn').addEventListener('click', resetGame);
     
     // Toggle log button
     document.getElementById('toggleLogBtn').addEventListener('click', toggleMessageLog);
@@ -192,10 +240,59 @@ function startGame() {
     document.getElementById('rulesModal').style.display = 'none';
     gameState.gameStarted = true;
     
+    // Reset game state
+    gameState.currentTurn = 1;
+    gameState.currentPhase = 'Purchase';
+    gameState.currentPhaseIndex = 0;
+    gameState.gameEnded = false;
+    gameState.territoriesPurchasedThisTurn = 0;
+    gameState.negotiationUsedThisTurn = false;
+    gameState.collusionActive = false;
+    gameState.collusionSuccess = false;
+    
+    // Reset player data
+    player.money = 10000;
+    player.oil = 0;
+    player.drillingSites = 0;
+    player.territories = [];
+    player.contracts = [];
+    
+    // Reset rival data
+    rival.money = 10000;
+    rival.oil = 0;
+    rival.drillingSites = 0;
+    rival.territories = [];
+    rival.contracts = [];
+    rival.strategy = 'competitive';
+    
+    // Randomize game data
+    randomizeGameData();
+    
+    // Re-enable all buttons that might have been disabled from previous game
+    document.querySelectorAll('.btn-action').forEach(btn => {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+    });
+    document.getElementById('endTurnBtn').disabled = false;
+    document.getElementById('endTurnBtn').style.opacity = '1';
+    
     initializeGame();
     updateUI();
-    addMessage("Game started! Petroleum & Sons begins operations.", 'system');
+    addMessage("Game started! Petroleum & Sons begins operations in " + getCurrentDate() + ".", 'system');
     animatePhase();
+}
+
+function getCurrentDate() {
+    const currentYear = gameState.startYear + gameState.currentTurn - 1;
+    return "01/01/" + currentYear;
+}
+
+function resetGame() {
+    startGame();
+}
+
+function goHome() {
+    window.location.href = '../index.html';
 }
 
 function initializeGame() {
@@ -226,14 +323,16 @@ function renderTerritories() {
             }
         }
         
+        const currentProduction = territory.productionRate * (1 + territory.upgradeLevel * 0.25);
         territoryDiv.innerHTML = `
             <div class="territory-name">${territory.name}</div>
             <div class="territory-info">
                 Cost: $${territory.cost.toLocaleString()}<br>
                 Reserves: ${territory.oilReserves} barrels<br>
-                Production: ${territory.productionRate}/turn
+                Production: ${Math.round(currentProduction)}/turn
                 ${territory.owner ? `<br>Owner: ${territory.owner === 'player' ? 'You' : 'Rival'}` : ''}
                 ${territory.drilled ? '<br>🏭 Drilled' : ''}
+                ${territory.upgradeLevel > 0 ? `<br>⚡ Upgrade Lv.${territory.upgradeLevel}` : ''}
             </div>
         `;
         
@@ -293,13 +392,14 @@ function selectConsumer(consumerId) {
 function updatePhaseButtons() {
     const buyBtn = document.getElementById('buyLandBtn');
     const drillBtn = document.getElementById('drillOilBtn');
+    const upgradeBtn = document.getElementById('upgradeBtn');
     const exportBtn = document.getElementById('exportBtn');
     const negotiateBtn = document.getElementById('negotiateBtn');
     const sabotageBtn = document.getElementById('sabotageBtn');
     const endTurnBtn = document.getElementById('endTurnBtn');
     
     // Reset all buttons
-    [buyBtn, drillBtn, exportBtn, negotiateBtn, sabotageBtn].forEach(btn => {
+    [buyBtn, drillBtn, upgradeBtn, exportBtn, negotiateBtn, sabotageBtn].forEach(btn => {
         btn.disabled = false;
         btn.style.opacity = '1';
     });
@@ -311,12 +411,34 @@ function updatePhaseButtons() {
         endTurnBtn.textContent = 'End Phase';
     }
     
+    // Check if all territories are owned and drilled
+    const allTerritoriesOwned = territories.every(t => t.owner !== null);
+    const allTerritoriesDrilled = territories.every(t => t.drilled);
+    
     // Enable/disable based on current phase and selections
     if (gameState.currentPhase === 'Purchase') {
         drillBtn.disabled = true;
+        upgradeBtn.disabled = true;
         exportBtn.disabled = true;
         negotiateBtn.disabled = true;
         sabotageBtn.disabled = true;
+        
+        // Auto-advance to drilling phase if all territories are owned
+        if (allTerritoriesOwned) {
+            buyBtn.disabled = true;
+            buyBtn.style.opacity = '0.3';
+            
+            // Automatically advance to drilling phase
+            setTimeout(() => {
+                gameState.currentPhaseIndex++;
+                gameState.currentPhase = gameState.phases[gameState.currentPhaseIndex];
+                addMessage("Purchase phase skipped - all territories owned. Moving to drilling phase.", 'system');
+                updateUI();
+                updatePhaseButtons();
+                animatePhase();
+            }, 500);
+            return;
+        }
     } else if (gameState.currentPhase === 'Drilling') {
         buyBtn.disabled = true;
         exportBtn.disabled = true;
@@ -325,23 +447,31 @@ function updatePhaseButtons() {
     } else if (gameState.currentPhase === 'Production') {
         buyBtn.disabled = true;
         drillBtn.disabled = true;
+        upgradeBtn.disabled = true;
         exportBtn.disabled = true;
         negotiateBtn.disabled = true;
         sabotageBtn.disabled = true;
     } else if (gameState.currentPhase === 'Trade') {
         buyBtn.disabled = true;
         drillBtn.disabled = true;
+        upgradeBtn.disabled = true;
         negotiateBtn.disabled = true;
         sabotageBtn.disabled = true;
     } else if (gameState.currentPhase === 'Negotiation') {
         buyBtn.disabled = true;
         drillBtn.disabled = true;
+        upgradeBtn.disabled = true;
         exportBtn.disabled = true;
-        // Both collude and compete buttons stay enabled
+        
+        // Disable both collude and compete buttons if negotiation already used this turn
+        if (gameState.negotiationUsedThisTurn) {
+            negotiateBtn.disabled = true;
+            sabotageBtn.disabled = true;
+        }
     }
     
     // Update disabled button styles
-    [buyBtn, drillBtn, exportBtn, negotiateBtn, sabotageBtn].forEach(btn => {
+    [buyBtn, drillBtn, upgradeBtn, exportBtn, negotiateBtn, sabotageBtn].forEach(btn => {
         if (btn.disabled) {
             btn.style.opacity = '0.5';
         }
@@ -351,6 +481,11 @@ function updatePhaseButtons() {
 function handleBuyLand() {
     if (gameState.selectedTerritory === null) {
         addMessage("Please select a territory first!", 'system');
+        return;
+    }
+    
+    if (gameState.territoriesPurchasedThisTurn >= 1) {
+        addMessage("You can only purchase one territory per turn!", 'system');
         return;
     }
     
@@ -370,6 +505,7 @@ function handleBuyLand() {
     player.money -= territory.cost;
     territory.owner = 'player';
     player.territories.push(territory.id);
+    gameState.territoriesPurchasedThisTurn++;
     
     addMessage(`Successfully purchased ${territory.name} for $${territory.cost.toLocaleString()}`, 'player');
     updateUI();
@@ -410,6 +546,44 @@ function handleDrillOil() {
     renderTerritories();
 }
 
+function handleUpgrade() {
+    if (gameState.selectedTerritory === null) {
+        addMessage("Please select a territory first!", 'system');
+        return;
+    }
+    
+    const territory = territories.find(t => t.id === gameState.selectedTerritory);
+    
+    if (territory.owner !== 'player') {
+        addMessage("You don't own this territory!", 'system');
+        return;
+    }
+    
+    if (!territory.drilled) {
+        addMessage("You must drill this territory first!", 'system');
+        return;
+    }
+    
+    if (territory.upgradeLevel >= 3) {
+        addMessage("This territory has reached maximum upgrade level!", 'system');
+        return;
+    }
+    
+    const upgradeCost = 1500 * (territory.upgradeLevel + 1);
+    if (player.money < upgradeCost) {
+        addMessage("Insufficient funds for upgrade!", 'system');
+        return;
+    }
+    
+    // Upgrade drill
+    player.money -= upgradeCost;
+    territory.upgradeLevel++;
+    
+    addMessage(`Successfully upgraded ${territory.name} to level ${territory.upgradeLevel} for $${upgradeCost.toLocaleString()}`, 'player');
+    updateUI();
+    renderTerritories();
+}
+
 function handleExport() {
     if (gameState.selectedConsumer === null) {
         addMessage("Please select a consumer country first!", 'system');
@@ -441,6 +615,11 @@ function handleExport() {
 }
 
 function handleNegotiate() {
+    if (gameState.negotiationUsedThisTurn) {
+        addMessage("You can only use one negotiation action per turn!", 'system');
+        return;
+    }
+    
     const collusionTypes = ['price_fixing', 'market_division', 'supply_control', 'export_quotas'];
     const randomType = collusionTypes[Math.floor(Math.random() * collusionTypes.length)];
     
@@ -479,10 +658,19 @@ function handleNegotiate() {
         rival.strategy = 'aggressive';
     }
     
+    // Mark negotiation as used this turn
+    gameState.negotiationUsedThisTurn = true;
+    
     updateUI();
+    updatePhaseButtons();
 }
 
 function handleSabotage() {
+    if (gameState.negotiationUsedThisTurn) {
+        addMessage("You can only use one negotiation action per turn!", 'system');
+        return;
+    }
+    
     const competitionCost = 1500;
     if (player.money < competitionCost) {
         addMessage("Insufficient funds for competitive action!", 'system');
@@ -547,7 +735,11 @@ function handleSabotage() {
         });
     }
     
+    // Mark negotiation as used this turn
+    gameState.negotiationUsedThisTurn = true;
+    
     updateUI();
+    updatePhaseButtons();
     renderConsumers();
 }
 
@@ -557,8 +749,9 @@ function endTurn() {
         let totalProduction = 0;
         territories.forEach(territory => {
             if (territory.owner === 'player' && territory.drilled && !territory.exhausted) {
-                totalProduction += territory.productionRate;
-                territory.oilReserves -= territory.productionRate;
+                const actualProduction = Math.round(territory.productionRate * (1 + territory.upgradeLevel * 0.25));
+                totalProduction += actualProduction;
+                territory.oilReserves -= actualProduction;
                 
                 if (territory.oilReserves <= 0) {
                     territory.exhausted = true;
@@ -585,14 +778,11 @@ function endTurn() {
         gameState.currentPhaseIndex = 0;
         gameState.currentPhase = gameState.phases[0];
         
-        rivalTurn();
+        // Reset territory purchase count and negotiation flag for new turn
+        gameState.territoriesPurchasedThisTurn = 0;
+        gameState.negotiationUsedThisTurn = false;
         
-        // Check if game should end
-        gameState.currentTurn++;
-        if (gameState.currentTurn > gameState.maxTurns) {
-            endGame();
-            return;
-        }
+        rivalTurn();
     } else {
         gameState.currentPhase = gameState.phases[gameState.currentPhaseIndex];
     }
@@ -619,15 +809,26 @@ function rivalTurn() {
             rivalDrillOil();
             
             setTimeout(() => {
-                rivalProduction();
+                rivalUpgrade();
                 
                 setTimeout(() => {
-                    rivalExport();
+                    rivalProduction();
                     
                     setTimeout(() => {
-                        rivalNegotiation();
-                        addMessage("Standard Oil Corporation's turn ends", 'rival');
-                        updateUI();
+                        rivalExport();
+                        
+                        setTimeout(() => {
+                            rivalNegotiation();
+                            addMessage("Standard Oil Corporation's turn ends", 'rival');
+                            updateUI();
+                            
+                            // Check if game should end after rival's turn
+                            gameState.currentTurn++;
+                            if (gameState.currentTurn > gameState.maxTurns) {
+                                endGame();
+                                return;
+                            }
+                        }, 1000);
                     }, 1000);
                 }, 1000);
             }, 1000);
@@ -669,12 +870,44 @@ function rivalDrillOil() {
     }
 }
 
+function rivalUpgrade() {
+    // Find drilled territories that can be upgraded
+    const upgradeableTerritories = territories.filter(t => 
+        t.owner === 'rival' && 
+        t.drilled && 
+        !t.exhausted && 
+        t.upgradeLevel < 3
+    );
+    
+    if (upgradeableTerritories.length > 0) {
+        // Sort by production potential (considers current production and upgrade benefit)
+        upgradeableTerritories.sort((a, b) => {
+            const aProductionGain = a.productionRate * 0.25; // 25% increase per upgrade
+            const bProductionGain = b.productionRate * 0.25;
+            return bProductionGain - aProductionGain;
+        });
+        
+        const bestTerritory = upgradeableTerritories[0];
+        const upgradeCost = 1500 * (bestTerritory.upgradeLevel + 1);
+        
+        // AI will upgrade if it has enough money and the upgrade is cost-effective
+        if (rival.money >= upgradeCost && upgradeCost <= rival.money * 0.3) {
+            rival.money -= upgradeCost;
+            bestTerritory.upgradeLevel++;
+            
+            addMessage(`Standard Oil upgraded ${bestTerritory.name} to level ${bestTerritory.upgradeLevel}`, 'rival');
+            renderTerritories();
+        }
+    }
+}
+
 function rivalProduction() {
     let totalProduction = 0;
     territories.forEach(territory => {
         if (territory.owner === 'rival' && territory.drilled && !territory.exhausted) {
-            totalProduction += territory.productionRate;
-            territory.oilReserves -= territory.productionRate;
+            const actualProduction = Math.round(territory.productionRate * (1 + territory.upgradeLevel * 0.25));
+            totalProduction += actualProduction;
+            territory.oilReserves -= actualProduction;
             
             if (territory.oilReserves <= 0) {
                 territory.exhausted = true;
@@ -742,31 +975,11 @@ function applyCollusionEffects() {
 }
 
 function animatePhase() {
-    const phaseIcon = document.getElementById('phaseIcon');
     const phaseAnimation = document.getElementById('phaseAnimation');
     
-    if (!phaseIcon || !phaseAnimation) return;
+    if (!phaseAnimation) return;
     
-    let icon = '';
-    switch (gameState.currentPhase) {
-        case 'Purchase':
-            icon = '🏞️';
-            break;
-        case 'Drilling':
-            icon = '🏭';
-            break;
-        case 'Production':
-            icon = '⚙️';
-            break;
-        case 'Trade':
-            icon = '🚢';
-            break;
-        case 'Negotiation':
-            icon = '🤝';
-            break;
-    }
-    
-    phaseIcon.textContent = icon;
+    // Always show the oil pump, just restart the animation
     phaseAnimation.classList.remove('phase-animate');
     
     setTimeout(() => {
@@ -790,6 +1003,7 @@ function updateUI() {
     // Update turn info
     document.getElementById('currentTurn').textContent = gameState.currentTurn;
     document.getElementById('currentPhase').textContent = gameState.currentPhase;
+    document.getElementById('currentDate').textContent = getCurrentDate();
 }
 
 function addMessage(message, type) {

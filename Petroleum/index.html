@@ -39,10 +39,19 @@
                         <li><strong>Export:</strong> Sell oil to consumer countries for profit</li>
                         <li><strong>Collude:</strong> Cooperate with Standard Oil to fix prices (affects next turn pricing)</li>
                         <li><strong>Compete:</strong> Launch aggressive market competition against Standard Oil</li>
+                        <li><strong>Note:</strong> You can only use either Collude OR Compete once per turn</li>
+                    </ul>
+                    
+                    <h3>New Features</h3>
+                    <ul>
+                        <li><strong>Limited Purchases:</strong> Only one territory can be purchased per turn</li>
+                        <li><strong>Drill Upgrades:</strong> Upgrade drilling sites to increase production by 25% per level (max 3 levels)</li>
+                        <li><strong>Dynamic Pricing:</strong> All costs, reserves, and prices are randomized each game</li>
+                        <li><strong>Historical Setting:</strong> Game starts in 1955, each turn represents one year</li>
                     </ul>
                     
                     <h3>Winning</h3>
-                    <p>Game ends after 20 turns. Win by having the most money and oil reserves combined.</p>
+                    <p>Game ends after 10 turns (1955-1964). Win by having the most money and oil reserves combined.</p>
                 </div>
                 <button id="startGame" class="btn btn-primary">Start Game</button>
             </div>
@@ -50,14 +59,18 @@
 
         <!-- Game Header -->
         <div id="gameHeader">
-            <h1>Petroleum & Sons</h1>
-            <div class="phase-display">
-                <div id="phaseAnimation" class="phase-animation">
-                    <span id="phaseIcon">🏞️</span>
+            <div class="header-left">
+                <h1>🛢️ Petroleum & Sons Oil Company</h1>
+                <div class="menu-buttons">
+                    <button id="homeBtn" class="btn btn-menu">🏠 Home</button>
+                    <button id="resetBtn" class="btn btn-menu">🔄 Reset</button>
                 </div>
+            </div>
+            <div class="phase-display">
                 <div class="turn-info">
-                    <span>Turn: <span id="currentTurn">1</span>/20</span>
+                    <span>Turn: <span id="currentTurn">1</span>/10</span>
                     <span>Phase: <span id="currentPhase">Purchase</span></span>
+                    <span>Date: <span id="currentDate">01/01/1955</span></span>
                 </div>
             </div>
         </div>
@@ -110,9 +123,10 @@
                     <div class="action-buttons">
                         <button id="buyLandBtn" class="btn btn-action">🏞️ Buy Land</button>
                         <button id="drillOilBtn" class="btn btn-action">🏭 Drill Oil</button>
+                        <button id="upgradeBtn" class="btn btn-action">⚡ Upgrade Drill</button>
                         <button id="exportBtn" class="btn btn-action">🚢 Export Oil</button>
                         <button id="negotiateBtn" class="btn btn-action">🤝 Collude</button>
-                        <button id="sabotageBtn" class="btn btn-action">⚡ Compete</button>
+                        <button id="sabotageBtn" class="btn btn-action">⚔️ Compete</button>
                     </div>
                     <button id="endTurnBtn" class="btn btn-primary">End Phase</button>
                 </div>
