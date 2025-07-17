@@ -16,10 +16,22 @@ let gameState = {
     startYear: 1955,
     territoriesPurchasedThisTurn: 0,
     negotiationUsedThisTurn: false,
+    isRivalTurn: false,
     negotiations: {
         active: false,
         offer: null,
         response: null
+    },
+    // Data tracking for end-game overview
+    history: {
+        playerMoney: [10000], // Starting money
+        rivalMoney: [10000],
+        playerOil: [0],
+        rivalOil: [0],
+        negotiations: [], // {turn, playerChoice, rivalChoice, outcome}
+        consumerPrices: [], // {turn, consumer, basePrice, playerPrice, rivalPrice}
+        playerAveragePrices: [], // {turn, averagePrice}
+        rivalAveragePrices: [] // {turn, averagePrice}
     }
 };
 
@@ -217,12 +229,402 @@ function closeRulesModal() {
     document.getElementById('rulesModal').style.display = 'none';
 }
 
+function closeOverviewModal() {
+    document.getElementById('overviewModal').style.display = 'none';
+}
+
+function trackTurnData() {
+    // Track money and oil at end of each turn
+    gameState.history.playerMoney.push(player.money);
+    gameState.history.rivalMoney.push(rival.money);
+    gameState.history.playerOil.push(player.oil);
+    gameState.history.rivalOil.push(rival.oil);
+    
+    // Track company-specific average prices
+    let playerTotalPrice = 0;
+    let rivalTotalPrice = 0;
+    
+    consumers.forEach(consumer => {
+        const playerPrice = consumer.playerPricePerBarrel || consumer.pricePerBarrel;
+        const rivalPrice = consumer.rivalPricePerBarrel || consumer.pricePerBarrel;
+        
+        playerTotalPrice += playerPrice;
+        rivalTotalPrice += rivalPrice;
+    });
+    
+    const playerAveragePrice = Math.round(playerTotalPrice / consumers.length);
+    const rivalAveragePrice = Math.round(rivalTotalPrice / consumers.length);
+    
+    gameState.history.playerAveragePrices.push({
+        turn: gameState.currentTurn,
+        averagePrice: playerAveragePrice
+    });
+    
+    gameState.history.rivalAveragePrices.push({
+        turn: gameState.currentTurn,
+        averagePrice: rivalAveragePrice
+    });
+}
+
+function trackNegotiation() {
+    if (gameState.playerChoice || gameState.rivalChoice) {
+        let outcome = 'none';
+        if (gameState.playerChoice === 'collude' && gameState.rivalChoice === 'collude') {
+            outcome = 'both_collude';
+        } else if (gameState.playerChoice === 'compete' && gameState.rivalChoice === 'compete') {
+            outcome = 'both_compete';
+        } else if (gameState.playerChoice && gameState.rivalChoice) {
+            outcome = 'mixed';
+        }
+        
+        gameState.history.negotiations.push({
+            turn: gameState.currentTurn,
+            playerChoice: gameState.playerChoice || 'none',
+            rivalChoice: gameState.rivalChoice || 'none',
+            outcome: outcome
+        });
+    }
+}
+
+function generateGameOverview(playerScore, rivalScore, winner) {
+    // Generate profit chart
+    generateProfitChart();
+    
+    // Generate price chart
+    generatePriceChart();
+    
+    // Generate negotiation history
+    generateNegotiationHistory();
+    
+    // Generate final statistics
+    generateFinalStats(playerScore, rivalScore, winner);
+}
+
+function generateProfitChart() {
+    const canvas = document.getElementById('profitChart');
+    const ctx = canvas.getContext('2d');
+    
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    const padding = 50;
+    const chartWidth = canvas.width - 2 * padding;
+    const chartHeight = canvas.height - 2 * padding;
+    
+    // Find max value for scaling
+    const allValues = [...gameState.history.playerMoney, ...gameState.history.rivalMoney];
+    const maxValue = Math.max(...allValues);
+    const minValue = Math.min(...allValues);
+    const valueRange = maxValue - minValue;
+    
+    // Set up styling
+    ctx.strokeStyle = '#f5f5f5';
+    ctx.fillStyle = '#f5f5f5';
+    ctx.font = '12px Arial';
+    
+    // Draw axes
+    ctx.beginPath();
+    ctx.moveTo(padding, padding);
+    ctx.lineTo(padding, canvas.height - padding);
+    ctx.lineTo(canvas.width - padding, canvas.height - padding);
+    ctx.stroke();
+    
+    // Draw grid lines and labels
+    const turns = gameState.history.playerMoney.length;
+    for (let i = 0; i <= 10; i++) {
+        const x = padding + (i / 10) * chartWidth;
+        const y = canvas.height - padding - (i / 10) * chartHeight;
+        
+        // Vertical grid lines (turns)
+        if (i <= turns - 1) {
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(245, 245, 245, 0.2)';
+            ctx.moveTo(x, padding);
+            ctx.lineTo(x, canvas.height - padding);
+            ctx.stroke();
+            
+            // Turn labels
+            ctx.fillStyle = '#f5f5f5';
+            ctx.textAlign = 'center';
+            ctx.fillText('T' + i, x, canvas.height - padding + 15);
+        }
+        
+        // Horizontal grid lines (money)
+        ctx.beginPath();
+        ctx.strokeStyle = 'rgba(245, 245, 245, 0.2)';
+        ctx.moveTo(padding, y);
+        ctx.lineTo(canvas.width - padding, y);
+        ctx.stroke();
+        
+        // Money labels
+        const value = Math.round(minValue + (i / 10) * valueRange);
+        ctx.fillStyle = '#f5f5f5';
+        ctx.textAlign = 'right';
+        ctx.fillText('$' + (value / 1000).toFixed(0) + 'K', padding - 5, y + 4);
+    }
+    
+    // Draw player money line
+    ctx.beginPath();
+    ctx.strokeStyle = '#4CAF50';
+    ctx.lineWidth = 3;
+    for (let i = 0; i < gameState.history.playerMoney.length; i++) {
+        const x = padding + (i / (turns - 1)) * chartWidth;
+        const y = canvas.height - padding - ((gameState.history.playerMoney[i] - minValue) / valueRange) * chartHeight;
+        
+        if (i === 0) {
+            ctx.moveTo(x, y);
+        } else {
+            ctx.lineTo(x, y);
+        }
+    }
+    ctx.stroke();
+    
+    // Draw rival money line
+    ctx.beginPath();
+    ctx.strokeStyle = '#f44336';
+    ctx.lineWidth = 3;
+    for (let i = 0; i < gameState.history.rivalMoney.length; i++) {
+        const x = padding + (i / (turns - 1)) * chartWidth;
+        const y = canvas.height - padding - ((gameState.history.rivalMoney[i] - minValue) / valueRange) * chartHeight;
+        
+        if (i === 0) {
+            ctx.moveTo(x, y);
+        } else {
+            ctx.lineTo(x, y);
+        }
+    }
+    ctx.stroke();
+    
+    // Draw legend
+    ctx.fillStyle = '#4CAF50';
+    ctx.fillRect(canvas.width - 150, 20, 15, 15);
+    ctx.fillStyle = '#f5f5f5';
+    ctx.textAlign = 'left';
+    ctx.fillText('Petroleum & Sons', canvas.width - 130, 32);
+    
+    ctx.fillStyle = '#f44336';
+    ctx.fillRect(canvas.width - 150, 40, 15, 15);
+    ctx.fillStyle = '#f5f5f5';
+    ctx.fillText('Standard Oil Corp', canvas.width - 130, 52);
+}
+
+function generatePriceChart() {
+    const canvas = document.getElementById('priceChart');
+    const ctx = canvas.getContext('2d');
+    
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    if (gameState.history.playerAveragePrices.length === 0) {
+        ctx.fillStyle = '#f5f5f5';
+        ctx.textAlign = 'center';
+        ctx.font = '16px Arial';
+        ctx.fillText('No price data available', canvas.width / 2, canvas.height / 2);
+        return;
+    }
+    
+    const padding = 50;
+    const chartWidth = canvas.width - 2 * padding;
+    const chartHeight = canvas.height - 2 * padding;
+    
+    // Find price range across both companies
+    const playerPrices = gameState.history.playerAveragePrices.map(p => p.averagePrice);
+    const rivalPrices = gameState.history.rivalAveragePrices.map(p => p.averagePrice);
+    const allPrices = [...playerPrices, ...rivalPrices];
+    const maxPrice = Math.max(...allPrices);
+    const minPrice = Math.min(...allPrices);
+    const priceRange = maxPrice - minPrice || 1;
+    
+    // Set up styling
+    ctx.strokeStyle = '#f5f5f5';
+    ctx.fillStyle = '#f5f5f5';
+    ctx.font = '12px Arial';
+    
+    // Draw axes
+    ctx.beginPath();
+    ctx.moveTo(padding, padding);
+    ctx.lineTo(padding, canvas.height - padding);
+    ctx.lineTo(canvas.width - padding, canvas.height - padding);
+    ctx.stroke();
+    
+    // Draw grid lines and labels
+    const turns = gameState.history.playerAveragePrices.length;
+    for (let i = 0; i <= 10; i++) {
+        const x = padding + (i / 10) * chartWidth;
+        const y = canvas.height - padding - (i / 10) * chartHeight;
+        
+        // Vertical grid lines (turns)
+        if (i <= turns - 1) {
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(245, 245, 245, 0.2)';
+            ctx.moveTo(x, padding);
+            ctx.lineTo(x, canvas.height - padding);
+            ctx.stroke();
+            
+            // Turn labels
+            ctx.fillStyle = '#f5f5f5';
+            ctx.textAlign = 'center';
+            ctx.fillText('T' + i, x, canvas.height - padding + 15);
+        }
+        
+        // Horizontal grid lines (prices)
+        ctx.beginPath();
+        ctx.strokeStyle = 'rgba(245, 245, 245, 0.2)';
+        ctx.moveTo(padding, y);
+        ctx.lineTo(canvas.width - padding, y);
+        ctx.stroke();
+        
+        // Price labels
+        const value = Math.round(minPrice + (i / 10) * priceRange);
+        ctx.fillStyle = '#f5f5f5';
+        ctx.textAlign = 'right';
+        ctx.fillText('$' + value, padding - 5, y + 4);
+    }
+    
+    // Draw player price line
+    ctx.beginPath();
+    ctx.strokeStyle = '#4CAF50';
+    ctx.lineWidth = 3;
+    for (let i = 0; i < gameState.history.playerAveragePrices.length; i++) {
+        const priceData = gameState.history.playerAveragePrices[i];
+        const x = padding + (i / (turns - 1)) * chartWidth;
+        const y = canvas.height - padding - ((priceData.averagePrice - minPrice) / priceRange) * chartHeight;
+        
+        if (i === 0) {
+            ctx.moveTo(x, y);
+        } else {
+            ctx.lineTo(x, y);
+        }
+    }
+    ctx.stroke();
+    
+    // Draw rival price line
+    ctx.beginPath();
+    ctx.strokeStyle = '#f44336';
+    ctx.lineWidth = 3;
+    for (let i = 0; i < gameState.history.rivalAveragePrices.length; i++) {
+        const priceData = gameState.history.rivalAveragePrices[i];
+        const x = padding + (i / (turns - 1)) * chartWidth;
+        const y = canvas.height - padding - ((priceData.averagePrice - minPrice) / priceRange) * chartHeight;
+        
+        if (i === 0) {
+            ctx.moveTo(x, y);
+        } else {
+            ctx.lineTo(x, y);
+        }
+    }
+    ctx.stroke();
+    
+    // Draw legend
+    ctx.fillStyle = '#4CAF50';
+    ctx.fillRect(canvas.width - 180, 20, 15, 15);
+    ctx.fillStyle = '#f5f5f5';
+    ctx.textAlign = 'left';
+    ctx.fillText('Petroleum & Sons Prices', canvas.width - 160, 32);
+    
+    ctx.fillStyle = '#f44336';
+    ctx.fillRect(canvas.width - 180, 40, 15, 15);
+    ctx.fillStyle = '#f5f5f5';
+    ctx.fillText('Standard Oil Corp Prices', canvas.width - 160, 52);
+}
+
+function generateNegotiationHistory() {
+    const container = document.getElementById('negotiationHistory');
+    container.innerHTML = '';
+    
+    if (gameState.history.negotiations.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: #ccc; font-style: italic;">No negotiations occurred during the game</div>';
+        return;
+    }
+    
+    gameState.history.negotiations.forEach(negotiation => {
+        const item = document.createElement('div');
+        item.className = 'negotiation-item';
+        
+        let outcomeText = '';
+        let outcomeClass = '';
+        
+        switch (negotiation.outcome) {
+            case 'both_collude':
+                outcomeText = 'Both Colluded';
+                outcomeClass = 'negotiation-collude';
+                break;
+            case 'both_compete':
+                outcomeText = 'Both Competed';
+                outcomeClass = 'negotiation-compete';
+                break;
+            case 'mixed':
+                outcomeText = 'Mixed Strategy';
+                outcomeClass = 'negotiation-mixed';
+                break;
+            default:
+                outcomeText = 'No Action';
+        }
+        
+        item.classList.add(outcomeClass);
+        item.innerHTML = `
+            <div style="font-weight: bold;">Turn ${negotiation.turn}</div>
+            <div style="font-size: 12px;">${outcomeText}</div>
+            <div style="font-size: 10px; margin-top: 5px;">
+                You: ${negotiation.playerChoice}<br>
+                Rival: ${negotiation.rivalChoice}
+            </div>
+        `;
+        
+        container.appendChild(item);
+    });
+}
+
+function generateFinalStats(playerScore, rivalScore, winner) {
+    const container = document.getElementById('finalStats');
+    
+    const playerTerritoriesOwned = gameState.history.playerMoney.length > 1 ? player.territories.length : 0;
+    const rivalTerritoriesOwned = gameState.history.rivalMoney.length > 1 ? rival.territories.length : 0;
+    const totalNegotiations = gameState.history.negotiations.length;
+    const collusionCount = gameState.history.negotiations.filter(n => n.outcome === 'both_collude').length;
+    
+    container.innerHTML = `
+        <div class="stat-item">
+            <div class="stat-value">$${playerScore.toLocaleString()}</div>
+            <div class="stat-label">Your Final Score</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">$${rivalScore.toLocaleString()}</div>
+            <div class="stat-label">Rival Final Score</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">${playerTerritoriesOwned}</div>
+            <div class="stat-label">Your Territories</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">${rivalTerritoriesOwned}</div>
+            <div class="stat-label">Rival Territories</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">${totalNegotiations}</div>
+            <div class="stat-label">Total Negotiations</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">${collusionCount}</div>
+            <div class="stat-label">Successful Collusions</div>
+        </div>
+        <div class="stat-item" style="grid-column: 1 / -1; background: ${winner === 'Petroleum & Sons' ? 'rgba(76, 175, 80, 0.3)' : winner === 'Standard Oil Corporation' ? 'rgba(244, 67, 54, 0.3)' : 'rgba(255, 152, 0, 0.3)'};">
+            <div class="stat-value">${winner}</div>
+            <div class="stat-label">Winner</div>
+        </div>
+    `;
+}
+
 function setupEventListeners() {
     // Start game button
     document.getElementById('startGame').addEventListener('click', startGame);
     
     // Close rules button
     document.getElementById('closeRules').addEventListener('click', closeRulesModal);
+    
+    // Overview modal buttons
+    document.getElementById('closeOverview').addEventListener('click', closeOverviewModal);
+    document.getElementById('playAgain').addEventListener('click', startGame);
     
     // Action buttons
     document.getElementById('buyLandBtn').addEventListener('click', handleBuyLand);
@@ -259,6 +661,7 @@ function toggleMessageLog() {
 
 function startGame() {
     document.getElementById('rulesModal').style.display = 'none';
+    document.getElementById('overviewModal').style.display = 'none';
     gameState.gameStarted = true;
     
     // Reset game state
@@ -272,6 +675,19 @@ function startGame() {
     gameState.collusionSuccess = false;
     gameState.playerChoice = null;
     gameState.rivalChoice = null;
+    gameState.isRivalTurn = false;
+    
+    // Reset history tracking
+    gameState.history = {
+        playerMoney: [10000],
+        rivalMoney: [10000],
+        playerOil: [0],
+        rivalOil: [0],
+        negotiations: [],
+        consumerPrices: [],
+        playerAveragePrices: [],
+        rivalAveragePrices: []
+    };
     
     // Reset player data
     player.money = 10000;
@@ -430,6 +846,15 @@ function updatePhaseButtons() {
     const negotiateBtn = document.getElementById('negotiateBtn');
     const sabotageBtn = document.getElementById('sabotageBtn');
     const endTurnBtn = document.getElementById('endTurnBtn');
+    
+    // If it's rival's turn, keep all buttons disabled
+    if (gameState.isRivalTurn) {
+        [buyBtn, drillBtn, upgradeBtn, exportBtn, negotiateBtn, sabotageBtn, endTurnBtn].forEach(btn => {
+            btn.disabled = true;
+            btn.style.opacity = '0.3';
+        });
+        return;
+    }
     
     // Reset all buttons
     [buyBtn, drillBtn, upgradeBtn, exportBtn, negotiateBtn, sabotageBtn].forEach(btn => {
@@ -721,6 +1146,10 @@ function endTurn() {
         gameState.territoriesPurchasedThisTurn = 0;
         gameState.negotiationUsedThisTurn = false;
         
+        // Set rival turn flag and disable all action buttons
+        gameState.isRivalTurn = true;
+        disableAllActionButtons();
+        
         rivalTurn();
     } else {
         gameState.currentPhase = gameState.phases[gameState.currentPhaseIndex];
@@ -729,6 +1158,32 @@ function endTurn() {
     updateUI();
     updatePhaseButtons();
     animatePhase();
+}
+
+function disableAllActionButtons() {
+    const actionButtons = [
+        'buyLandBtn', 'drillOilBtn', 'upgradeBtn', 
+        'exportBtn', 'negotiateBtn', 'sabotageBtn', 'endTurnBtn'
+    ];
+    
+    actionButtons.forEach(buttonId => {
+        const button = document.getElementById(buttonId);
+        button.disabled = true;
+        button.style.opacity = '0.3';
+    });
+}
+
+function enableAllActionButtons() {
+    const actionButtons = [
+        'buyLandBtn', 'drillOilBtn', 'upgradeBtn', 
+        'exportBtn', 'negotiateBtn', 'sabotageBtn', 'endTurnBtn'
+    ];
+    
+    actionButtons.forEach(buttonId => {
+        const button = document.getElementById(buttonId);
+        button.disabled = false;
+        button.style.opacity = '1';
+    });
 }
 
 function rivalTurn() {
@@ -753,11 +1208,20 @@ function rivalTurn() {
                         setTimeout(() => {
                             rivalNegotiation();
                             addMessage("Standard Oil Corporation's turn ends", 'rival');
+                            
+                            // Re-enable action buttons after rival's turn
+                            gameState.isRivalTurn = false;
+                            enableAllActionButtons();
+                            
                             updateUI();
+                            updatePhaseButtons();
                             
                             // Reset negotiation choices for next turn
                             gameState.playerChoice = null;
                             gameState.rivalChoice = null;
+                            
+                            // Track data for this turn
+                            trackTurnData();
                             
                             // Check if game should end after rival's turn
                             gameState.currentTurn++;
@@ -892,6 +1356,7 @@ function rivalNegotiation() {
     // Apply negotiation effects immediately after both companies have chosen
     if (gameState.playerChoice || gameState.rivalChoice) {
         applyCollusionEffects();
+        trackNegotiation();
     }
 }
 
@@ -995,6 +1460,9 @@ function addMessage(message, type) {
 function endGame() {
     gameState.gameEnded = true;
     
+    // Track final turn data
+    trackTurnData();
+    
     const playerScore = player.money + (player.oil * 20);
     const rivalScore = rival.money + (rival.oil * 20);
     
@@ -1022,4 +1490,10 @@ function endGame() {
     
     document.getElementById('endTurnBtn').disabled = true;
     document.getElementById('endTurnBtn').style.opacity = '0.5';
+    
+    // Show overview modal after a brief delay
+    setTimeout(() => {
+        generateGameOverview(playerScore, rivalScore, winner);
+        document.getElementById('overviewModal').style.display = 'block';
+    }, 2000);
 } 

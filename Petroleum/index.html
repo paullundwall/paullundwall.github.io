@@ -68,6 +68,38 @@
             </div>
         </div>
 
+        <!-- Game Overview Modal -->
+        <div id="overviewModal" class="modal" style="display: none;">
+            <div class="modal-content overview-modal">
+                <h2>Game Overview - Final Results</h2>
+                <div class="overview-content">
+                    <div class="overview-section">
+                        <h3>Company Performance Over Time</h3>
+                        <canvas id="profitChart" width="600" height="300"></canvas>
+                    </div>
+                    
+                    <div class="overview-section">
+                        <h3>Company Oil Prices Over Time</h3>
+                        <canvas id="priceChart" width="600" height="200"></canvas>
+                    </div>
+                    
+                    <div class="overview-section">
+                        <h3>Negotiation History</h3>
+                        <div id="negotiationHistory"></div>
+                    </div>
+                    
+                    <div class="overview-section">
+                        <h3>Final Statistics</h3>
+                        <div id="finalStats"></div>
+                    </div>
+                </div>
+                <div class="overview-buttons">
+                    <button id="closeOverview" class="btn btn-primary">Close</button>
+                    <button id="playAgain" class="btn btn-secondary">Play Again</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Game Header -->
         <div id="gameHeader">
             <div class="header-left">
