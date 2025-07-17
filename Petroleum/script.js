@@ -563,7 +563,7 @@ function generateNegotiationHistory() {
         
         item.classList.add(outcomeClass);
         item.innerHTML = `
-            <div style="font-weight: bold;">Turn ${negotiation.turn}</div>
+            <div style="font-weight: bold;">Turn ${negotiation.turn - 1}</div>
             <div style="font-size: 12px;">${outcomeText}</div>
             <div style="font-size: 10px; margin-top: 5px;">
                 You: ${negotiation.playerChoice}<br>
