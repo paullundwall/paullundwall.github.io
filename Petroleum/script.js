@@ -926,6 +926,15 @@ function updatePhaseButtons() {
             negotiateBtn.disabled = true;
             sabotageBtn.disabled = true;
         }
+        
+        // Grey out End Turn until a negotiation choice is made
+        if (!gameState.negotiationUsedThisTurn) {
+            endTurnBtn.disabled = true;
+            endTurnBtn.style.opacity = '0.5';
+        } else {
+            endTurnBtn.disabled = false;
+            endTurnBtn.style.opacity = '1';
+        }
     }
     
     // Update disabled button styles
@@ -1342,8 +1351,16 @@ function rivalExport() {
 }
 
 function rivalNegotiation() {
-    // Rival AI chooses strategy - always 50/50
-    const rivalChoice = Math.random() > 0.5 ? 'compete' : 'collude';
+    // Rival AI chooses strategy: collude on turn 1, then mirror player's previous turn
+    let rivalChoice;
+    if (gameState.currentTurn === 1) {
+        rivalChoice = 'collude';
+    } else {
+        const prevTurn = gameState.currentTurn - 1;
+        const prevNegotiation = gameState.history.negotiations.find(n => n.turn === prevTurn);
+        const prevPlayerChoice = prevNegotiation ? prevNegotiation.playerChoice : null;
+        rivalChoice = (prevPlayerChoice === 'collude' || prevPlayerChoice === 'compete') ? prevPlayerChoice : 'collude';
+    }
     
     gameState.rivalChoice = rivalChoice;
     
