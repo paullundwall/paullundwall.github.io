@@ -70,6 +70,47 @@
             transform: translateY(-1px);
         }
         
+        /* Model descriptions */
+        .model-descriptions {
+            margin-top: 60px;
+            text-align: left;
+        }
+        
+        .model-descriptions h2 {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: #1a1a1a;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        
+        .model-card {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 16px;
+        }
+        
+        .model-card h3 {
+            margin-bottom: 8px;
+            color: #1a1a1a;
+        }
+        
+        .model-card p {
+            color: #444;
+            margin-bottom: 8px;
+        }
+        
+        .model-card ul {
+            margin-left: 20px;
+            margin-top: 8px;
+            color: #333;
+        }
+        
+        .model-card li {
+            margin: 6px 0;
+        }
+        
         @media (max-width: 768px) {
             .container {
                 padding: 40px 20px;
@@ -85,6 +126,21 @@
         <div class="wargames">
             <h2>Wargames</h2>
             <a href="Petroleum/index.html" class="wargame-link">Petroleum</a>
+        </div>
+
+        <div class="model-descriptions">
+            <h2>Model Descriptions</h2>
+            <div class="model-card">
+                <h3>Petroleum</h3>
+                <p>Negotiation mechanics and AI behavior:</p>
+                <ul>
+                    <li><strong>Both Collude:</strong> Oil prices increase by 20% for both companies</li>
+                    <li><strong>Both Compete:</strong> Oil prices decrease by 20% for both companies</li>
+                    <li><strong>Mixed Strategy:</strong> Competitor gets 40% higher prices, colluder gets 30% lower prices</li>
+                    <li><strong>Price Effects:</strong> Applied immediately and last for the entire next turn</li>
+                    <li><strong>AI Strategy:</strong> Standard Oil colludes by default; it will compete next turn if you competed in the previous turn.</li>
+                </ul>
+            </div>
         </div>
     </div>
 </body>
