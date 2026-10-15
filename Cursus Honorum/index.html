@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cursus Honorum</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <!-- HOME -->
+  <section id="screen-home" class="screen active">
+    <div class="meander meander-top" aria-hidden="true"></div>
+    <div class="home-frame" aria-hidden="true"></div>
+    <div class="home-content">
+      <div class="emblem">
+        <svg id="laurel" viewBox="0 0 200 200" aria-hidden="true"></svg>
+        <span class="emblem-text">SPQR</span>
+      </div>
+      <h1 class="title">Cursus Honorum</h1>
+      <div class="divider" aria-hidden="true"><span></span></div>
+      <ol class="ladder">
+        <li>Quaestor</li>
+        <li>Aedile</li>
+        <li>Praetor</li>
+        <li>Consul</li>
+      </ol>
+      <div class="home-actions">
+        <button id="btn-start" class="btn btn-red">Start</button>
+        <button id="btn-continue" class="btn btn-outline hidden">Continue</button>
+      </div>
+      <blockquote class="quote">
+        &ldquo;Gloria virtutem tamquam umbra sequitur.&rdquo;
+        <span>Glory follows virtue like its shadow. &mdash; Cicero</span>
+      </blockquote>
+    </div>
+    <div class="meander meander-bottom" aria-hidden="true"></div>
+  </section>
+
+  <!-- CREATOR -->
+  <section id="screen-creator" class="screen">
+    <header class="creator-header">
+      <button class="btn-link" data-goto="home">&larr; Main menu</button>
+      <div class="creator-title">
+        <h2>Fashion your senator</h2>
+        <p>Age 30 &middot; Quaestor-elect</p>
+      </div>
+      <span class="spacer"></span>
+    </header>
+
+    <div class="creator-body">
+      <aside class="portrait-panel">
+        <div class="portrait-frame"><div id="portrait"></div></div>
+        <div class="nameplate">
+          <div id="np-full" class="np-full"></div>
+          <div id="np-inscription" class="inscription"></div>
+          <div id="np-status" class="np-status"></div>
+        </div>
+        <div class="portrait-actions">
+          <button id="btn-random" class="btn btn-small">Randomise appearance</button>
+          <button id="btn-random-name" class="btn btn-small">Randomise name</button>
+          <button id="btn-reset" class="btn btn-small btn-ghost-dark">Reset</button>
+        </div>
+      </aside>
+
+      <main class="options-panel">
+        <nav class="tabs" role="tablist">
+          <button class="tab active" data-tab="name" role="tab">Nomen<span>Name &amp; gens</span></button>
+          <button class="tab" data-tab="face" role="tab">Facies<span>Face</span></button>
+          <button class="tab" data-tab="hair" role="tab">Cutis &amp; capilli<span>Skin, hair &amp; eyes</span></button>
+          <button class="tab" data-tab="traits" role="tab">Mores<span>Character</span></button>
+        </nav>
+
+        <div class="tab-panel active" data-panel="name">
+          <h3 class="section-title">Gens</h3>
+          <div id="gens-grid" class="gens-grid"></div>
+          <div id="gens-info" class="gens-info"></div>
+
+          <div class="name-fields">
+            <label class="field">
+              <span class="field-label">Praenomen <em>personal name</em></span>
+              <select id="praenomen"></select>
+            </label>
+            <div class="field">
+              <span class="field-label">Nomen <em>family name, from your gens</em></span>
+              <div id="nomen" class="fixed-value"></div>
+            </div>
+            <label class="field">
+              <span class="field-label">Cognomen <em>branch or personal surname</em></span>
+              <input id="cognomen" type="text" maxlength="20" autocomplete="off" spellcheck="false" placeholder="e.g. Caesar" />
+            </label>
+          </div>
+          <div class="chips-label">Cognomina borne by your gens:</div>
+          <div id="cognomen-chips" class="chips"></div>
+          <p id="cognomen-error" class="error hidden">A cognomen may only contain Latin letters.</p>
+        </div>
+
+        <div class="tab-panel" data-panel="face">
+          <p class="hint">Drag the sliders to shape your face. Double-click a slider to reset it.</p>
+          <div id="sliders"></div>
+        </div>
+
+        <div class="tab-panel" data-panel="hair">
+          <h3 class="section-title">Capilli <em>hair</em></h3>
+          <div id="hair-style" class="segmented"></div>
+          <h3 class="section-title">Barba <em>beard</em></h3>
+          <div id="beard-style" class="segmented"></div>
+          <p class="hint">In the late Republic, a well-shaven face was the mark of a respectable man. Young bloods sported a fashionable light beard, and a mourner let his grow.</p>
+          <h3 class="section-title">Cutis <em>skin</em></h3>
+          <div id="skin-tones" class="swatches"></div>
+          <h3 class="section-title">Hair &amp; beard colour</h3>
+          <div id="hair-colors" class="swatches"></div>
+          <h3 class="section-title">Eye colour</h3>
+          <div id="eye-colors" class="swatches"></div>
+        </div>
+
+        <div class="tab-panel" data-panel="traits">
+          <div class="traits-top">
+            <div class="fortuna">
+              <span class="fortuna-label">Fortuna <em>points to spend</em></span>
+              <span id="trait-points" class="fortuna-points"></span>
+              <span id="trait-count" class="fortuna-count"></span>
+            </div>
+            <div class="traits-buttons">
+              <button id="btn-unbounded" class="btn btn-small btn-ghost-dark" aria-pressed="false" title="Take as many traits as you like, whatever they cost">No limits</button>
+              <button id="btn-random-traits" class="btn btn-small">Randomise character</button>
+              <button id="btn-clear-traits" class="btn btn-small btn-ghost-dark">Clear</button>
+            </div>
+          </div>
+          <p id="traits-hint" class="hint">Virtues cost Fortuna; flaws give some back. Choose up to six. Your face speaks for itself: traits written on it are added for free.</p>
+          <div class="traits-side">
+            <div>
+              <h3 class="section-title">Starting qualities</h3>
+              <div id="quality-preview" class="quality-preview"></div>
+            </div>
+            <div>
+              <h3 class="section-title">Written on your face</h3>
+              <div id="face-traits" class="face-traits"></div>
+            </div>
+          </div>
+          <div id="trait-list" class="trait-list"></div>
+        </div>
+
+        <footer class="creator-footer">
+          <button id="btn-confirm" class="btn btn-gold">Enter the Senate</button>
+        </footer>
+      </main>
+    </div>
+  </section>
+
+  <!-- SENATE ENTRANCE -->
+  <section id="screen-senate" class="screen">
+    <div class="senate">
+      <p id="senate-date" class="kicker"></p>
+      <h2 class="senate-heading">The Curia Hostilia</h2>
+      <div id="curia" class="curia"></div>
+      <div class="senate-body">
+        <div class="senate-left">
+          <div class="portrait-frame senate-portrait"><div id="senate-portrait"></div></div>
+          <h3 id="senate-name" class="senate-name"></h3>
+          <div id="senate-inscription" class="inscription"></div>
+        </div>
+        <div class="senate-right">
+          <div id="senate-intro" class="senate-intro"></div>
+          <div id="senate-traits" class="senate-traits"></div>
+          <h3 class="section-title">Faces in the Curia</h3>
+          <div id="senate-personae" class="persona-grid static"></div>
+          <h3 class="section-title">Your quaestorship</h3>
+          <p class="hint">The quaestors draw lots for their postings, but a word in the right ear goes a long way. Where will you serve?</p>
+          <div id="posts" class="posts"></div>
+          <button class="btn-link" data-goto="creator">&larr; Back to the creator</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GAME -->
+  <section id="screen-game" class="screen">
+    <header class="game-header">
+      <div class="game-header-name">
+        <h2 id="g-name"></h2>
+        <span id="g-office"></span>
+      </div>
+      <div class="game-header-year">
+        <span class="year-block"><span id="g-year"></span><span id="g-consuls"></span></span>
+        <button class="btn-link" data-goto="home">Main menu</button>
+      </div>
+    </header>
+    <div class="game-body">
+      <aside class="game-side">
+        <div class="portrait-frame game-portrait"><div id="g-portrait"></div></div>
+        <div id="g-traits" class="trait-chips"></div>
+        <div id="g-nicknames" class="nicknames"></div>
+        <div id="g-stats" class="stats"></div>
+        <div id="g-plot" class="plot-box"></div>
+        <h4 class="side-title">Career <em>cursus</em></h4>
+        <ul id="g-career" class="career"></ul>
+      </aside>
+      <main class="game-main">
+        <div class="turn-bar">
+          <div class="pips-wrap"><div id="g-pips" class="pips"></div><span id="g-pips-label"></span></div>
+          <button id="btn-end-year" class="btn btn-red">End the year &rarr;</button>
+        </div>
+        <div id="g-result" class="result hidden"></div>
+        <div id="g-personae" class="personae"></div>
+        <div id="g-office-actions"></div>
+        <div id="g-actions"></div>
+      </main>
+      <aside class="game-log">
+        <h4 class="side-title">Acta Diurna <em>The year's news</em></h4>
+        <ul id="g-log" class="log"></ul>
+      </aside>
+    </div>
+  </section>
+
+  <!-- END -->
+  <section id="screen-end" class="screen">
+    <div class="end">
+      <p id="end-kicker" class="kicker"></p>
+      <h2 id="end-title" class="end-title"></h2>
+      <p id="end-text" class="end-text"></p>
+      <div class="end-body">
+        <div class="portrait-frame end-portrait"><div id="end-portrait"></div></div>
+        <div class="end-stone">
+          <div id="end-elogium" class="elogium"></div>
+          <div id="end-translation" class="translation"></div>
+        </div>
+      </div>
+      <div id="end-rank" class="rank"></div>
+      <h3 class="section-title end-dp-title">Post mortem <em>what Rome said afterwards</em></h3>
+      <div id="end-afterword" class="afterword"></div>
+      <h3 class="section-title end-dp-title">Dramatis personae</h3>
+      <div id="end-personae" class="end-personae"></div>
+      <div class="end-actions">
+        <button class="btn btn-red" data-goto="home">Begin a new life</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- MODAL -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-card">
+      <div class="modal-purse"></div>
+      <p class="modal-kicker"></p>
+      <h3 class="modal-title"></h3>
+      <div class="modal-body"></div>
+      <div class="modal-choices"></div>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/traits.js"></script>
+  <script src="js/character.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/epilogue.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

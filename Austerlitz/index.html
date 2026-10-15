@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Austerlitz — 2 décembre 1805</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,600;0,6..96,800;1,6..96,400&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <canvas id="map"></canvas>
+
+  <div id="loading"><div class="ld-title">AUSTERLITZ</div><div class="ld-text">The engineers are drawing the map…</div></div>
+
+  <div id="hud" class="hidden">
+    <header id="topbar">
+      <div class="tb-block" id="tb-armies">
+        <div><span class="lbl">Grande Armée</span><b id="men-f">—</b></div>
+        <div><span class="lbl">Enemy losses</span><b id="loss-a">—</b></div>
+      </div>
+      <div id="cartouche">
+        <div class="c-date">Monday 2 December 1805 · 11 Frimaire an XIV</div>
+        <div class="c-time"><span id="clock">7 h 00</span> <span id="daypart">in the morning</span></div>
+        <div class="c-weather" id="weather"></div>
+      </div>
+      <div class="tb-block right">
+        <div id="speed">
+          <button data-speed="0" title="Pause (Space)">❚❚</button>
+          <button data-speed="0.5" title="Key 1">½×</button>
+          <button data-speed="1" class="on" title="Key 2">1×</button>
+          <button data-speed="2" title="Key 3">2×</button>
+          <button data-speed="4" title="Key 4">4×</button>
+        </div>
+        <div class="tb-row"><span class="lbl">Objectives</span><b id="obj-score">—</b>
+          <button id="btn-help" title="Help (?)">?</button><button id="btn-end" title="End the battle">End</button></div>
+      </div>
+    </header>
+
+    <aside id="oob" class="panel">
+      <h2><span>Ordre de Bataille</span><button id="oob-toggle" title="Collapse">–</button></h2>
+      <div id="oob-list"></div>
+    </aside>
+
+    <aside id="dispatches" class="panel">
+      <h2><span>Dépêches</span><button id="disp-toggle" title="Collapse">–</button></h2>
+      <div id="disp-list"></div>
+    </aside>
+
+    <section id="card" class="panel hidden"></section>
+    <div id="minimap-wrap" class="panel"><canvas id="minimap" width="240" height="238"></canvas></div>
+    <div id="banner" class="hidden"><div class="b-orn">✦ ✦ ✦</div><div class="b-title"></div><div class="b-text"></div></div>
+    <div id="pause-tag">En pause — press Space</div>
+    <div id="tooltip" class="hidden"></div>
+  </div>
+
+  <div id="help" class="hidden">
+    <div class="h-inner">
+      <h2>Instructions to the General Staff</h2>
+      <div class="h-cols">
+        <div>
+          <h3>Command</h3>
+          <ul>
+            <li><kbd>Left-click</kbd> a formation to select it. <kbd>Shift</kbd> adds to the selection.</li>
+            <li><kbd>Drag</kbd> a box to select several formations.</li>
+            <li><kbd>Double-click</kbd> a formation, or click a marshal's pennant, to select the whole corps.</li>
+            <li><kbd>Right-click</kbd> the ground to march there. <kbd>Right-drag</kbd> sets the facing of the line on arrival.</li>
+            <li><kbd>Right-click</kbd> a visible enemy to attack. Infantry and cavalry charge; a battalion set to Line (with Auto off) stops at musket range and fires.</li>
+          </ul>
+          <h3>Formations</h3>
+          <ul>
+            <li><kbd>Z</kbd> Column — fast and strong in the charge, but a target for guns.</li>
+            <li><kbd>X</kbd> Line — full musketry, slow to move and wheel.</li>
+            <li><kbd>C</kbd> Square — proof against cavalry, but murdered by artillery.</li>
+            <li><kbd>V</kbd> Auto — officers choose the formation themselves (on by default).</li>
+            <li><kbd>E</kbd> Engage / Hold stance (engaged troops stop to fight enemies who come close and pursue a short way; holding troops obey orders to the letter) · <kbd>H</kbd> Halt · <kbd>F</kbd> centre the view on the selection.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>The map</h3>
+          <ul>
+            <li><kbd>W A S D</kbd> / arrow keys, <kbd>middle-drag</kbd>, or <kbd>right-drag</kbd> with nothing selected to pan. <kbd>Wheel</kbd> to zoom. Click the minimap to jump.</li>
+            <li><kbd>Space</kbd> pause · <kbd>1</kbd>–<kbd>4</kbd> game speed. At 1×, one second is one minute of battle.</li>
+          </ul>
+          <h3>The art of war</h3>
+          <ul>
+            <li>Until about 9 o'clock <b>fog</b> fills the valleys. Troops in it see only a few hundred metres, and cannot be seen from the heights.</li>
+            <li>Villages, the Sokolnitz château and woods give cover. Streams slow movement; frozen ponds can be crossed slowly, but cannon fire breaks the ice.</li>
+            <li>Morale falls under fire and in melee. A broken formation flees and may rally out of reach of the enemy. Your marshals and, above all, <b>the Emperor</b> restore morale nearby.</li>
+            <li>Cavalry in the flank or rear is decisive. Guns must stand still to fire.</li>
+            <li>Objectives (medallions, numbered by their value) are held by whoever alone occupies them. If the enemy holds the <b>Zuran</b> in strength for fifteen minutes, the battle is lost.</li>
+          </ul>
+        </div>
+      </div>
+      <button data-close>Understood</button>
+    </div>
+  </div>
+
+  <div id="title" class="hidden">
+    <div class="t-inner">
+      <svg id="emblem" viewBox="0 0 200 200" width="128" height="128"></svg>
+      <div class="t-kicker">Grande Armée · Moravie</div>
+      <h1>AUSTERLITZ</h1>
+      <div class="t-sub">La Bataille des Trois Empereurs</div>
+      <div class="t-rule"><span>2 décembre 1805</span></div>
+      <div class="t-cols">
+        <div class="t-col">
+          <h3>The situation</h3>
+          <p>Seventy-three thousand Frenchmen face eighty-five thousand Russians and Austrians before Brünn, in Moravia. The Tsar Alexander and the Emperor Francis are with their army on the Pratzen plateau.</p>
+          <p>The Emperor has deliberately weakened his right. Following Weyrother's plan, the Allied columns will march down from the heights to turn it at Telnitz and Sokolnitz — and so empty their own centre.</p>
+        </div>
+        <div class="t-col">
+          <h3>Your orders, Sire</h3>
+          <ul>
+            <li>Hold <b>Telnitz</b> and <b>Sokolnitz</b> with Legrand until Davout's III Corps arrives from Raigern.</li>
+            <li>Keep <b>Soult</b> hidden in the fog. When the Allied columns have left, storm the <b>Pratzen</b>: Pratze, the Pratzeberg and Staré Vinohrady.</li>
+            <li>Hold the <b>Santon</b> and the Olmütz road against Bagration with Lannes and Murat.</li>
+            <li>Never lose the <b>Zuran</b>, your command post.</li>
+          </ul>
+        </div>
+      </div>
+      <button id="btn-start">Prendre le commandement</button>
+      <div class="t-hint">Press <kbd>?</kbd> in battle for instructions · the battle runs from 7 h to 17 h</div>
+    </div>
+  </div>
+
+  <div id="end" class="hidden"></div>
+
+  <script>
+    (function () {
+      // laurel wreath around the imperial N
+      const s = document.getElementById('emblem');
+      let h = '<defs><linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3d27a"/><stop offset="0.5" stop-color="#c9a043"/><stop offset="1" stop-color="#8a6a22"/></linearGradient></defs>';
+      const r = 76, pt = (th) => [100 + r * Math.cos(th), 108 - r * Math.sin(th)];
+      for (const side of [1, -1]) {
+        for (let i = 0; i < 13; i++) {
+          const th = (105 + i * 12) * Math.PI / 180;
+          let [x, y] = pt(th), [nx, ny] = pt(th + 0.05);
+          if (side < 0) { x = 200 - x; nx = 200 - nx; }
+          const rot = Math.atan2(ny - y, nx - x) * 180 / Math.PI - 90 + side * 28;
+          h += `<ellipse cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" rx="4.5" ry="11" transform="rotate(${rot.toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)})" fill="url(#gold)" opacity="0.95"/>`;
+        }
+      }
+      h += '<path d="M70 40 L80 22 L90 36 L100 16 L110 36 L120 22 L130 40 Z" fill="url(#gold)"/>';
+      h += '<rect x="70" y="40" width="60" height="7" fill="url(#gold)"/>';
+      h += '<text x="100" y="140" text-anchor="middle" font-family="Bodoni Moda, Didot, Bodoni 72, serif" font-weight="800" font-size="92" fill="url(#gold)">N</text>';
+      h += '<path d="M60 176 Q100 196 140 176" stroke="url(#gold)" stroke-width="3" fill="none"/>';
+      s.innerHTML = h;
+    })();
+  </script>
+  <script src="js/util.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/terrain.js"></script>
+  <script src="js/units.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
