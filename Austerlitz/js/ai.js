@@ -68,7 +68,7 @@ A.AI = (function () {
       }
     }
     const plateauFr = ['pratze', 'pratzeberg'].every((id) => g.objectives.find((o) => o.id === id).owner === 'F');
-    if (!flags.south && (t >= 870 || (flags.threat && plateauFr && t >= flags.threat + 210))) {
+    if (!flags.south && (t >= 900 || (flags.threat && plateauFr && t >= flags.threat + 300))) {
       flags.south = t;
       for (const u of corpsUnits(['AG', 'C1', 'C2', 'C3'])) {
         const p = retreatPoint(u);
@@ -84,7 +84,7 @@ A.AI = (function () {
     if (!flags.broken) {
       let eff = 0;
       for (const u of g.units) if (u.side === 'A' && !u.routed && !u.dead) eff += u.men;
-      if (eff < g.initialMen.A * 0.42) {
+      if (eff < g.initialMen.A * 0.32) {
         flags.broken = t;
         for (const u of g.units) {
           if (u.side !== 'A' || u.dead) continue;
@@ -100,7 +100,7 @@ A.AI = (function () {
   function decideCharge(u, e, sluggish) {
     if (u.cls === 'cav') return e.form !== 'square' || e.routed;
     if (e.cls === 'art' || e.routed) return true;
-    if (sluggish) return u.men > e.men * 2 || e.morale < 35 || u.fireTime > 35;
+    if (sluggish) return u.men > e.men * 1.6 || e.morale < 40 || u.fireTime > 30;
     return u.men > e.men * 1.4 || e.morale < 45 || u.fireTime > 20;
   }
 
@@ -141,7 +141,7 @@ A.AI = (function () {
     }
     const sluggish = SOUTH.includes(u.corps) && !flags.south;
     let rad = R[u.aiMode] || 400;
-    if (sluggish && u.aiMode === 'attack') rad = 550;
+    if (sluggish && u.aiMode === 'attack') rad = 750;
     if (CENTRE.includes(u.corps) && u.aiDest && u.aiDest[0] < LEASH_X) u.aiDest = [LEASH_X + 300, u.aiDest[1]];
     const dest = u.aiDest;
     if (u.aiMode === 'retreat' && dest && A.dist(u.x, u.y, dest[0], dest[1]) < 150) {

@@ -111,6 +111,15 @@ button { font: inherit; cursor: pointer; }
   pointer-events: none;
 }
 
+.kuklops-link {
+  position: absolute;
+  top: 58px;
+  left: 42px;
+  z-index: 3;
+  color: var(--ink-soft);
+  text-decoration: none;
+}
+
 .home-content {
   position: relative;
   z-index: 2;

@@ -1,6 +1,8 @@
 'use strict';
 (function () {
   const STEP = 0.1;
+  // Battle minutes per real second at 1×.
+  const TIME_SCALE = 1 / 3;
   let acc = 0, last = 0, started = false;
   const UI = A.UI, R = A.Render;
 
@@ -79,7 +81,7 @@
       } else G.zuranT = null;
       let eff = 0;
       for (const u of G.units) if (u.side === 'F' && !u.routed && !u.dead) eff += u.men;
-      if (G.t > 480 && eff < G.initialMen.F * 0.38) endGame('broken');
+      if (G.t > 480 && eff < G.initialMen.F * 0.45) endGame('broken');
       if (G.t >= A.T_END) endGame('time');
     }
   }
@@ -101,14 +103,14 @@
     const lf = G.stats.loss.F, la = G.stats.loss.A;
     const ratio = la / Math.max(1, lf);
     let r;
-    if (reason === 'captured') r = ['DÉSASTRE', "The Emperor is taken", 'Cossacks have overrun the imperial escort. The Grande Armée is leaderless and the campaign of 1805 ends in catastrophe.'];
-    else if (reason === 'zuran') r = ['DÉFAITE', 'The command post has fallen', 'With the Zuran in Allied hands the army\'s line of retreat to Brünn is cut. The Grande Armée falls back in disorder.'];
-    else if (reason === 'broken') r = ['DÉFAITE', 'The army is broken', 'Too many battalions have fled the field. The Allies have turned the tables on the Emperor.'];
-    else if (plateau === 3 && (ratio >= 2 || G.alliedBroken) && pts >= 18) r = ['VICTOIRE DÉCISIVE', 'The Sun of Austerlitz', '“Soldats, je suis content de vous… Il vous suffira de dire : « J\'étais à la bataille d\'Austerlitz », pour que l\'on réponde : « Voilà un brave ! »” The Third Coalition is shattered.'];
-    else if (plateau >= 2 && pts >= 14 && ratio >= 1.2) r = ['VICTOIRE', 'The Pratzen is ours', 'The Allied centre has been pierced and the field belongs to France, though part of the enemy army escaped intact.'];
-    else if (pts >= 12 && ratio >= 0.8) r = ['VICTOIRE INCERTAINE', 'A hard-won field', 'The French hold their ground, but the blow that was meant to end the war has not fallen.'];
-    else if (pts >= 9) r = ['BATAILLE INDÉCISE', 'Neither side prevails', 'Night falls on a blood-soaked plateau. Both emperors will claim the day; the war goes on.'];
-    else r = ['DÉFAITE', 'The Coalition triumphs', 'The Allied plan has succeeded. The Grande Armée retreats on Brünn and Vienna is lost.'];
+    if (reason === 'captured') r = ['DISASTER', "The Emperor is taken", 'Cossacks have overrun the imperial escort. The Grande Armée is leaderless and the campaign of 1805 ends in catastrophe.'];
+    else if (reason === 'zuran') r = ['DEFEAT', 'The command post has fallen', 'With the Zuran in Allied hands the army\'s line of retreat to Brünn is cut. The Grande Armée falls back in disorder.'];
+    else if (reason === 'broken') r = ['DEFEAT', 'The army is broken', 'Too many battalions have fled the field. The Allies have turned the tables on the Emperor.'];
+    else if (plateau === 3 && G.alliedBroken && ratio >= 2 && pts >= 20) r = ['DECISIVE VICTORY', 'The Sun of Austerlitz', '“Soldats, je suis content de vous… Il vous suffira de dire : « J\'étais à la bataille d\'Austerlitz », pour que l\'on réponde : « Voilà un brave ! »” The Third Coalition is shattered.'];
+    else if (plateau >= 2 && pts >= 16 && ratio >= 1.4) r = ['VICTORY', 'The Pratzen is ours', 'The Allied centre has been pierced and the field belongs to France, though part of the enemy army escaped intact.'];
+    else if (plateau >= 1 && pts >= 13 && ratio >= 1) r = ['NARROW VICTORY', 'A hard-won field', 'The French hold their ground, but the blow that was meant to end the war has not fallen.'];
+    else if (pts >= 10) r = ['INDECISIVE BATTLE', 'Neither side prevails', 'Night falls on a blood-soaked plateau. Both emperors will claim the day; the war goes on.'];
+    else r = ['DEFEAT', 'The Coalition triumphs', 'The Allied plan has succeeded. The Grande Armée retreats on Brünn and Vienna is lost.'];
     return { r, pts, tot, plateau, lf, la, ratio };
   }
 
@@ -134,6 +136,7 @@
       <ul class="e-objs">${held}</ul>
       <p class="e-hist"><b>History:</b> the French lost ${A.HISTORY.fr.text}; the Allies lost ${A.HISTORY.al.text}. Austria signed the Peace of Pressburg on 26 December.</p>
       <button id="btn-again">Fight the battle again</button>
+      <a href="../" class="home-link e-home">&larr; Kuklops</a>
     </div>`;
     el.classList.remove('hidden');
     document.getElementById('btn-again').onclick = () => location.reload();
@@ -148,7 +151,7 @@
     last = ts;
     const G = A.Game;
     if (started && G && !G.over) {
-      acc += dt * G.speed;
+      acc += dt * G.speed * TIME_SCALE;
       let n = 0;
       while (acc >= STEP && n < 50) {
         A.Sim.step(STEP);
@@ -158,7 +161,7 @@
         if (G.over) break;
       }
       if (n >= 50) acc = 0;
-      A.FX.update(dt * Math.min(G.speed, 2));
+      A.FX.update(dt * Math.min(G.speed * TIME_SCALE * 2, 2));
       UI.frame(dt);
     } else if (!started) {
       R.cam.x += dt * 60;
