@@ -146,6 +146,17 @@
     for (let i = 0; i < minutes / STEP && !A.Game.over; i++) { A.Sim.step(STEP); events(); }
   };
 
+  let panDir = 1;
+  function titleCam(dt) {
+    const M = A.MAP;
+    R.cam.z = Math.max(R.H / 7000, R.W / 9000);
+    const halfW = R.W / R.cam.z / 2;
+    R.cam.y = 7600;
+    R.cam.x += dt * 60 * panDir;
+    if (R.cam.x > M.W - halfW) { R.cam.x = M.W - halfW; panDir = -1; }
+    else if (R.cam.x < halfW) { R.cam.x = halfW; panDir = 1; }
+  }
+
   function frame(ts) {
     const dt = Math.min(0.1, (ts - last) / 1000 || 0);
     last = ts;
@@ -164,8 +175,7 @@
       A.FX.update(dt * Math.min(G.speed * TIME_SCALE * 2, 2));
       UI.frame(dt);
     } else if (!started) {
-      R.cam.x += dt * 60;
-      if (R.cam.x > 9000) R.cam.x = 4000;
+      titleCam(dt);
     }
     R.draw(UI.state);
     if (started) {
@@ -195,8 +205,8 @@
     setTimeout(() => {
       A.Terrain.build();
       R.bake();
-      R.cam.x = 5000; R.cam.y = 7600; R.cam.z = R.H / 7000;
-      R.clampCam();
+      R.cam.x = 5000;
+      titleCam(0);
       loading.classList.add('hidden');
       document.getElementById('title').classList.remove('hidden');
       requestAnimationFrame(frame);
