@@ -492,7 +492,8 @@ A.UI = (function () {
     $('btn-help').onclick = () => toggleHelp();
     $('help').onclick = (e) => { if (e.target.id === 'help' || e.target.dataset.close != null) toggleHelp(false); };
     $('btn-end').onclick = () => { if (confirm('End the battle now and assess the result?')) A.endGame('time'); };
-    $('btn-home').onclick = () => { if (A.Game.over || confirm('Leave the battle and return to the Kuklops home page?')) location.href = '../'; };
+    const home = $('btn-home');
+    if (home) home.onclick = () => { if (A.Game.over || confirm('Leave the battle and return to the Kuklops home page?')) location.href = '../'; };
     $('oob-toggle').onclick = () => $('oob').classList.toggle('collapsed');
     $('disp-toggle').onclick = () => $('dispatches').classList.toggle('collapsed');
   }
