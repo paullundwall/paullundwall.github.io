@@ -109,9 +109,9 @@ A.OBJECTIVES = [
 ];
 
 A.NATIONS = {
-  F: { name: 'French', morale: 1.2, fire: 1.0, fill: '#2d4f97', dark: '#121f40', glyph: '#f3ead6', flag: ['#1f3c8a', '#f4efe2', '#c0262d'] },
-  R: { name: 'Russian', morale: 1.0, fire: 0.85, fill: '#3f5c33', dark: '#18240f', glyph: '#efe7d0', flag: ['#f4efe2', '#2b4ea0'] },
-  Au: { name: 'Austrian', morale: 0.85, fire: 0.85, fill: '#efe8d6', dark: '#3e3628', glyph: '#3e3628', flag: ['#f2c200', '#1a1a1a'] },
+  F: { name: 'French', morale: 1.1, fire: 1.0, fill: '#2d4f97', dark: '#121f40', glyph: '#f3ead6', flag: ['#1f3c8a', '#f4efe2', '#c0262d'] },
+  R: { name: 'Russian', morale: 1.05, fire: 0.95, fill: '#3f5c33', dark: '#18240f', glyph: '#efe7d0', flag: ['#f4efe2', '#2b4ea0'] },
+  Au: { name: 'Austrian', morale: 0.9, fire: 0.9, fill: '#efe8d6', dark: '#3e3628', glyph: '#3e3628', flag: ['#f2c200', '#1a1a1a'] },
 };
 
 A.TYPES = {
@@ -201,9 +201,9 @@ A.OOB = [
 
 // Davout's III Corps, arriving from Raigern after a forced march from Vienna.
 A.REINFORCEMENTS = [
-  { t: 465, dest: [1500, 12250], u: { side: 'F', nation: 'F', corps: 'III', id: 'dbou', name: 'Division de dragons', cmd: 'Bourcier', type: 'dragoon', men: 2500, x: 80, y: 12350, face: 0, q: 1.0 } },
-  { t: 480, dest: [1900, 12450], u: { side: 'F', nation: 'F', corps: 'III', id: 'dheu', name: 'Brigade Heudelet', cmd: 'Heudelet', type: 'light', men: 1300, x: 80, y: 12250, face: 0, q: 1.1 } },
-  { t: 510, dest: [1900, 11050], u: { side: 'F', nation: 'F', corps: 'III', id: 'dfri', name: 'Division Friant', cmd: 'Friant', type: 'line', men: 2800, guns: 9, x: 80, y: 10950, face: 0, q: 1.15 } },
+  { t: 490, dest: [1500, 12250], u: { side: 'F', nation: 'F', corps: 'III', id: 'dbou', name: 'Division de dragons', cmd: 'Bourcier', type: 'dragoon', men: 2500, x: 80, y: 12350, face: 0, q: 1.0 } },
+  { t: 505, dest: [1900, 12450], u: { side: 'F', nation: 'F', corps: 'III', id: 'dheu', name: 'Brigade Heudelet', cmd: 'Heudelet', type: 'light', men: 1300, x: 80, y: 12250, face: 0, q: 1.1 } },
+  { t: 540, dest: [1900, 11050], u: { side: 'F', nation: 'F', corps: 'III', id: 'dfri', name: 'Division Friant', cmd: 'Friant', type: 'line', men: 2800, guns: 9, x: 80, y: 10950, face: 0, q: 1.15 } },
 ];
 
 // The Weyrother plan: turn the French right at Telnitz and Sokolnitz,

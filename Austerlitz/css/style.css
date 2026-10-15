@@ -210,6 +210,12 @@ body.paused #pause-tag { display: block; }
   box-shadow: 0 0 0 3px rgba(12, 8, 4, 0.9), 0 0 0 4px var(--gold), 0 10px 30px rgba(0, 0, 0, 0.6); cursor: pointer;
 }
 #btn-start:hover, #btn-again:hover, .h-inner button:hover { filter: brightness(1.1); }
+.home-link {
+  position: fixed; top: 18px; left: 22px; z-index: 21; font: 15px var(--f-sc); letter-spacing: 0.2em;
+  color: #c8b07a; text-decoration: none; opacity: 0.85;
+}
+.home-link:hover { color: var(--gold-hi); opacity: 1; }
+.e-home { display: block; margin: 16px auto 0; position: static; }
 .t-hint { margin-top: 18px; font: italic 14px var(--f-body); color: #a8976f; }
 .t-hint kbd, .h-inner kbd { background: rgba(240, 229, 200, 0.12); color: #f0dfaf; border-color: rgba(201, 160, 67, 0.5); }
 
