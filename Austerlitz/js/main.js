@@ -137,6 +137,7 @@
   const cmdLabel = (c) => (c.id === 'nap' ? "L'Empereur" : c.name.replace('Maréchal ', ''));
   function buildPicker() {
     const list = document.getElementById('t-cmd-list');
+    if (!list) return;
     const pick = (c) => {
       A.Player = c;
       list.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.id === c.id));
