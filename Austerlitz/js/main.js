@@ -6,6 +6,14 @@
   let acc = 0, last = 0, started = false;
   const UI = A.UI, R = A.Render;
 
+  A.Player = A.COMMANDERS[0];
+  A.controls = (u) => {
+    const P = A.Player;
+    if (u.side !== 'F') return false;
+    if (!P.corps && !P.units) return true;
+    return (P.corps || []).includes(u.corps) || (P.units || []).includes(u.id);
+  };
+
   const EVENTS = [
     {
       t: 420,
@@ -17,7 +25,10 @@
     { t: 495, fn: () => UI.dispatch('Observers on the Zuran', 'The Russian columns are streaming south off the plateau towards Telnitz and Sokolnitz. Their centre grows thin.', 'info', { x: 6300, y: 9300 }) },
     {
       t: 520,
-      fn: () => UI.banner('Le Soleil d’Austerlitz', '“How long do you need to reach the heights?” — “Less than twenty minutes, Sire.” — “Then we shall wait another quarter of an hour.”'),
+      fn: () => {
+        UI.banner('Le Soleil d’Austerlitz', '“How long do you need to reach the heights?” — “Less than twenty minutes, Sire.” — “Then we shall wait another quarter of an hour.”');
+        A.Report.note('The sun of Austerlitz breaks through and the fog begins to lift from the valleys.', 'info', 1);
+      },
     },
     { t: 525, fn: () => UI.dispatch('Espions', 'The Fourth Column — Kutuzov himself, with Miloradovich and Kolowrat — begins to leave the plateau.', 'info', { x: 8000, y: 7800 }) },
     { t: 535, fn: () => UI.dispatch("L'Empereur", 'Now. One sharp blow and the war is over! Soult: Saint-Hilaire on the Pratzeberg, Vandamme on Staré Vinohrady.', 'good', { x: 6000, y: 8200 }) },
@@ -55,6 +66,7 @@
     G.initialMen = { F: sumMen('F') + A.REINFORCEMENTS.reduce((a, r) => a + r.u.men, 0), A: sumMen('A') };
     G.captureEmperor = () => endGame('captured');
     for (const u of G.units) u.el = A.Terrain.elev(u.x, u.y);
+    A.Report.init(G);
     A.AI.init();
     A.Sim.computeVis();
   }
@@ -67,8 +79,11 @@
       const u = new A.Unit(r.u);
       u.order = { type: 'move', x: r.dest[0], y: r.dest[1], face: 0 };
       G.units.push(u);
+      G.roster.push(u);
+      A.AI.initFrench(u);
       if (G.ri === 1) {
         UI.banner('Davout arrive !', 'The III Corps comes up from Raigern after a forced march of more than 110 km in two days.');
+        A.Report.note("Davout's III Corps arrives from Raigern after a forced march from Vienna.", 'good', 3, { x: r.dest[0], y: r.dest[1] }, 'davout');
       }
       UI.dispatch('Maréchal Davout', `${u.name} (${u.cmd}) arrives on the Raigern road.`, 'good', u);
       UI.buildOOB();
@@ -76,7 +91,11 @@
     if (!G.over) {
       const z = G.objectives.find((o) => o.id === 'zuran');
       if (z.owner === 'A') {
-        if (G.zuranT == null) { G.zuranT = G.t; UI.banner('Le Zuran est perdu !', 'Retake the Emperor\'s command post within fifteen minutes or the army will fall back.'); }
+        if (G.zuranT == null) {
+          G.zuranT = G.t;
+          UI.banner('Le Zuran est perdu !', 'Retake the Emperor\'s command post within fifteen minutes or the army will fall back.');
+          A.Report.note("The Allies storm the Zuran, the Emperor's command post.", 'bad', 5, z, 'obj:zuran');
+        }
         else if (G.t - G.zuranT >= 15) endGame('zuran');
       } else G.zuranT = null;
       let eff = 0;
@@ -84,6 +103,7 @@
       if (G.t > 480 && eff < G.initialMen.F * 0.45) endGame('broken');
       if (G.t >= A.T_END) endGame('time');
     }
+    A.Report.sample(G);
   }
 
   A.setSpeed = (s) => {
@@ -114,11 +134,53 @@
     return { r, pts, tot, plateau, lf, la, ratio };
   }
 
+  const cmdLabel = (c) => (c.id === 'nap' ? "L'Empereur" : c.name.replace('Maréchal ', ''));
+  function buildPicker() {
+    const list = document.getElementById('t-cmd-list');
+    const pick = (c) => {
+      A.Player = c;
+      list.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.id === c.id));
+      document.getElementById('t-objs').innerHTML = c.objectives.map((o) => `<li>${o}</li>`).join('');
+      document.getElementById('t-cmd-sub').textContent = c.id === 'nap' ? 'You command the whole army.' : `You are ${c.name}: ${c.sub}. The rest of the army follows the Emperor's plan.`;
+    };
+    list.innerHTML = A.COMMANDERS.map((c) => `<button data-id="${c.id}"><b>${cmdLabel(c)}</b><i>${c.id === 'nap' ? 'Napoléon' : c.sub.split(' — ')[0]}</i></button>`).join('');
+    list.querySelectorAll('button').forEach((b) => (b.onclick = () => pick(A.COMMANDERS.find((c) => c.id === b.dataset.id))));
+    pick(A.COMMANDERS[0]);
+  }
+
+  function commandReport(G) {
+    const P = A.Player;
+    if (!P.targets) return '';
+    const mine = G.roster.filter((u) => A.controls(u) && u.cls !== 'staff');
+    const inflicted = mine.reduce((s, u) => s + u.inflicted, 0);
+    const lost = mine.reduce((s, u) => s + u.losses, 0);
+    const objs = P.targets.map((id) => G.objectives.find((o) => o.id === id));
+    const got = (o) => o.owner === 'F' && o.mine;
+    const share = objs.filter(got).length / objs.length;
+    const fought = inflicted >= Math.max(300, lost);
+    const v = share === 1 && fought
+      ? ['The Emperor is delighted', `${P.name} has done all that was asked of him, and more. There will be a dukedom in it.`]
+      : share >= 0.5 || (share > 0 && fought)
+        ? ['The Emperor is satisfied', `${P.name} has carried out the greater part of his orders.`]
+        : ['The Emperor is displeased', `${P.name} has failed to carry out his orders. His conduct will not be forgotten.`];
+    const li = objs.map((o) => `<li class="${got(o) ? 'f' : 'a'}">${o.name} <span>${got(o) ? '✓' : '✗'}</span></li>`).join('');
+    return `<div class="e-cmd">
+        <div class="e-cmd-k">${P.name} · ${P.sub}</div>
+        <h3>${v[0]}</h3>
+        <p>${v[1]} Your troops inflicted some ${A.fmtNum(inflicted)} casualties and lost ${A.fmtNum(lost)} men.</p>
+        <ul class="e-objs">${li}</ul>
+        <p class="e-cmd-n">✓ taken or held by your own troops, and still French at the end of the day</p>
+      </div>`;
+  }
+
   function endGame(reason) {
     const G = A.Game;
     if (G.over) return;
     G.over = true;
     A.setSpeed(0);
+    if (reason === 'captured') A.Report.note('Cossacks overrun the imperial escort and take the Emperor.', 'bad', 6, G.napoleon);
+    G.nextSample = G.t;
+    A.Report.sample(G);
     const a = assess(reason);
     const el = document.getElementById('end');
     const held = G.objectives.map((o) => `<li class="${o.owner === 'F' ? 'f' : 'a'}">${o.name} <span>${A.roman(o.pts)}</span></li>`).join('');
@@ -133,12 +195,16 @@
         <div><label>Guns captured</label><b>${A.fmtNum(G.stats.guns.A)}</b><i>French guns lost: ${A.fmtNum(G.stats.guns.F)}</i></div>
         <div><label>Objectives</label><b>${a.pts} / ${a.tot}</b><i>${a.plateau} of 3 plateau positions</i></div>
       </div>
+      ${commandReport(G)}
+      ${A.Report.html(G, a)}
       <ul class="e-objs">${held}</ul>
       <p class="e-hist"><b>History:</b> the French lost ${A.HISTORY.fr.text}; the Allies lost ${A.HISTORY.al.text}. Austria signed the Peace of Pressburg on 26 December.</p>
       <button id="btn-again">Fight the battle again</button>
       <a href="../" class="home-link e-home">&larr; Kuklops</a>
     </div>`;
     el.classList.remove('hidden');
+    el.scrollTop = 0;
+    A.Report.drawMap(document.getElementById('r-map'), G);
     document.getElementById('btn-again').onclick = () => location.reload();
   }
   A.endGame = endGame;
@@ -164,10 +230,11 @@
     if (started && G && !G.over) {
       acc += dt * G.speed * TIME_SCALE;
       let n = 0;
-      while (acc >= STEP && n < 50) {
-        A.Sim.step(STEP);
+      while (acc > 1e-6 && n < 50) {
+        const h = Math.min(STEP, acc);
+        A.Sim.step(h);
         events();
-        acc -= STEP;
+        acc -= h;
         n++;
         if (G.over) break;
       }
@@ -188,9 +255,33 @@
 
   function start() {
     newGame();
+    const P = A.Player;
     document.getElementById('title').classList.add('hidden');
+    if (P.arrives && P.arrives > A.T_START + 20) {
+      const ld = document.getElementById('loading');
+      ld.querySelector('.ld-text').textContent = `The battle has raged since dawn. ${P.name} rides for the field…`;
+      ld.classList.remove('hidden');
+      setTimeout(() => {
+        A.advance(P.arrives - A.T_START + 0.5);
+        UI.clearBanners();
+        ld.classList.add('hidden');
+        begin();
+      }, 40);
+    } else begin();
+  }
+
+  function begin() {
+    const G = A.Game;
     document.getElementById('hud').classList.remove('hidden');
-    R.cam.x = 4700; R.cam.y = 7600; R.cam.z = Math.max(R.H / 9500, R.W / 12000);
+    const mine = G.units.filter((u) => !u.dead && A.controls(u) && u.cls !== 'staff');
+    if (A.Player.id !== 'nap' && mine.length) {
+      const aim = (u, i) => (u.order && u.order.type === 'move' ? (u[i] + u.order[i]) / 2 : u[i]);
+      R.cam.x = mine.reduce((s, u) => s + aim(u, 'x'), 0) / mine.length;
+      R.cam.y = mine.reduce((s, u) => s + aim(u, 'y'), 0) / mine.length;
+      R.cam.z = Math.max(R.H / 6500, R.W / 8500);
+    } else {
+      R.cam.x = 4700; R.cam.y = 7600; R.cam.z = Math.max(R.H / 9500, R.W / 12000);
+    }
     R.clampCam();
     UI.buildOOB();
     started = true;
@@ -211,6 +302,7 @@
       document.getElementById('title').classList.remove('hidden');
       requestAnimationFrame(frame);
     }, 30);
+    buildPicker();
     document.getElementById('btn-start').onclick = start;
   });
 })();

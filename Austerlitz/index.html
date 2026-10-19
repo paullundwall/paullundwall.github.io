@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,600;0,6..96,800;1,6..96,400&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=9">
 </head>
 <body>
   <canvas id="map"></canvas>
@@ -105,6 +105,7 @@
       <h1>AUSTERLITZ</h1>
       <div class="t-sub">La Bataille des Trois Empereurs</div>
       <div class="t-rule"><span>2 décembre 1805</span></div>
+      <div id="t-cmd"><div class="t-cmd-lbl">Choose your command</div><div id="t-cmd-list"></div></div>
       <div class="t-cols">
         <div class="t-col">
           <h3>The situation</h3>
@@ -112,13 +113,9 @@
           <p>The Emperor has deliberately weakened his right. Following Weyrother's plan, the Allied columns will march down from the heights to turn it at Telnitz and Sokolnitz — and so empty their own centre.</p>
         </div>
         <div class="t-col">
-          <h3>The plan of battle</h3>
-          <ul>
-            <li>Hold <b>Telnitz</b> and <b>Sokolnitz</b> with Legrand until Davout's III Corps arrives from Raigern.</li>
-            <li>Keep <b>Soult</b> hidden in the fog. When the Allied columns have left, storm the <b>Pratzen</b>: Pratze, the Pratzeberg and Staré Vinohrady.</li>
-            <li>Hold the <b>Santon</b> and the Olmütz road against Bagration with Lannes and Murat.</li>
-            <li>Never lose the <b>Zuran</b>, your command post.</li>
-          </ul>
+          <h3>Your objectives</h3>
+          <p id="t-cmd-sub" class="t-cmd-sub"></p>
+          <ul id="t-objs"></ul>
         </div>
       </div>
       <button id="btn-start">Prendre le commandement</button>
@@ -150,13 +147,14 @@
       s.innerHTML = h;
     })();
   </script>
-  <script src="js/util.js"></script>
-  <script src="js/data.js"></script>
-  <script src="js/terrain.js"></script>
-  <script src="js/units.js"></script>
-  <script src="js/ai.js"></script>
-  <script src="js/render.js"></script>
-  <script src="js/ui.js"></script>
-  <script src="js/main.js"></script>
+  <script src="js/util.js?v=9"></script>
+  <script src="js/data.js?v=9"></script>
+  <script src="js/terrain.js?v=9"></script>
+  <script src="js/units.js?v=9"></script>
+  <script src="js/ai.js?v=9"></script>
+  <script src="js/render.js?v=9"></script>
+  <script src="js/ui.js?v=9"></script>
+  <script src="js/report.js?v=9"></script>
+  <script src="js/main.js?v=9"></script>
 </body>
 </html>
