@@ -86,13 +86,13 @@ A.UI = (function () {
     const G = A.Game;
     if (!G) return null;
     for (const k in G.cmdPos) {
-      if (A.CORPS[k].side !== 'F') continue;
+      if (A.CORPS[k].side !== 'F' || !G.units.some((u) => u.corps === k && !u.dead && A.controls(u))) continue;
       const [px, py] = R.w2s(G.cmdPos[k].x, G.cmdPos[k].y);
       if (Math.abs(sx - (px + 6)) < 12 && sy > py - 22 && sy < py + 6) return k;
     }
     return null;
   }
-  const ownUnits = () => A.Game.units.filter((u) => u.side === 'F' && !u.dead);
+  const ownUnits = () => A.Game.units.filter((u) => !u.dead && A.controls(u));
   function selectCorps(k, add) {
     const us = ownUnits().filter((u) => u.corps === k);
     S.selected = add ? [...new Set([...S.selected, ...us])] : us;
@@ -189,7 +189,7 @@ A.UI = (function () {
           const k = pickCommander(e.clientX, e.clientY);
           const u = k ? null : pickUnit(e.clientX, e.clientY);
           if (k) selectCorps(k, e.shiftKey);
-          else if (u && u.side === 'F') {
+          else if (u && A.controls(u)) {
             if (e.shiftKey) S.selected = S.selected.includes(u) ? S.selected.filter((x) => x !== u) : [...S.selected, u];
             else S.selected = [u];
             S.inspect = null;
@@ -215,7 +215,7 @@ A.UI = (function () {
     });
     cv.addEventListener('dblclick', (e) => {
       const u = pickUnit(e.clientX, e.clientY);
-      if (u && u.side === 'F' && u.cls !== 'staff') selectCorps(u.corps, e.shiftKey);
+      if (u && A.controls(u) && u.cls !== 'staff') selectCorps(u.corps, e.shiftKey);
     });
     cv.addEventListener('wheel', (e) => {
       e.preventDefault();
@@ -281,21 +281,36 @@ A.UI = (function () {
     const list = el.oobList;
     list.innerHTML = '';
     oobRows = new Map();
-    const order = ['Q', 'V', 'RC', 'I', 'IV', 'G', 'GR', 'III'];
+    const all = Object.keys(A.CORPS).filter((k) => A.CORPS[k].side === 'F');
+    const has = (k) => G.units.some((u) => u.corps === k && !u.dead && A.controls(u));
+    const order = [...all.filter(has), ...all.filter((k) => !has(k))];
     for (const k of order) {
       const us = G.units.filter((u) => u.side === 'F' && u.corps === k && !u.dead);
       if (!us.length) continue;
-      const C = A.CORPS[k];
+      const C = A.CORPS[k], mine = has(k);
       const h = document.createElement('div');
-      h.className = 'oob-corps';
+      h.className = 'oob-corps' + (mine ? '' : ' other');
       h.innerHTML = `<span class="pennant" style="background:${C.color}"></span><span class="cn">${C.name}</span><span class="cc">${C.cmd}</span>`;
-      h.onclick = (e) => selectCorps(k, e.shiftKey);
-      h.ondblclick = () => { selectCorps(k); focusSelection(); };
+      if (mine) {
+        h.onclick = (e) => selectCorps(k, e.shiftKey);
+        h.ondblclick = () => { selectCorps(k); focusSelection(); };
+      } else {
+        h.title = 'Not under your command';
+        h.onclick = () => centerOn(us[0].x, us[0].y);
+      }
       list.appendChild(h);
       for (const u of us) {
         const r = document.createElement('div');
-        r.className = 'oob-unit';
+        const own = A.controls(u);
+        r.className = 'oob-unit' + (own ? '' : ' other');
         r.innerHTML = `<span class="sym">${symSVG(u, 26, 16)}</span><span class="un"><b>${u.cmd}</b><i>${u.name}</i></span><span class="us"><em class="men"></em><span class="mbar"><i></i></span></span>`;
+        if (!own) {
+          r.title = 'Not under your command';
+          r.onclick = () => { S.inspect = u; S.selected = []; centerOn(u.x, u.y); };
+          list.appendChild(r);
+          oobRows.set(u, { r, men: r.querySelector('.men'), bar: r.querySelector('.mbar i') });
+          continue;
+        }
         r.onclick = (e) => {
           if (e.shiftKey) S.selected = S.selected.includes(u) ? S.selected.filter((x) => x !== u) : [...S.selected, u];
           else S.selected = [u];
@@ -324,7 +339,7 @@ A.UI = (function () {
     const card = el.card;
     const sel = S.selected.filter((u) => !u.dead);
     if (sel.length !== S.selected.length) S.selected = sel;
-    if (S.inspect && (S.inspect.dead || !A.Game.vis.F.has(S.inspect.uid))) S.inspect = null;
+    if (S.inspect && (S.inspect.dead || (S.inspect.side === 'A' && !A.Game.vis.F.has(S.inspect.uid)))) S.inspect = null;
     const key = sel.length ? sel.map((u) => u.uid).join(',') + '|' + sel.map((u) => u.autoForm + u.stance).join('') : S.inspect ? 'e' + S.inspect.uid : '';
     if (!key) { card.classList.add('hidden'); cardFor = ''; return; }
     card.classList.remove('hidden');
@@ -350,7 +365,7 @@ A.UI = (function () {
       q('.v-status').textContent = sel.filter((u) => u.melee.length || u.firing).length + ' engaged · ' + sel.filter((u) => u.routed).length + ' routed';
     } else if (S.inspect) {
       const u = S.inspect;
-      q('.v-men').textContent = estimate(u.men);
+      q('.v-men').textContent = u.side === 'F' ? A.fmtNum(u.men) : estimate(u.men);
       q('.v-status').textContent = u.routed ? 'Routed' : u.melee.length ? 'In melee' : u.firing ? 'Firing' : u.speedNow > 0 ? 'Marching' : 'Halted';
     }
   }
@@ -393,6 +408,12 @@ A.UI = (function () {
         <div><div class="c-name">${sel.length} formations under orders</div><div class="c-sub">${[...new Set(sel.map((u) => u.cmd))].slice(0, 6).join(' · ')}${sel.length > 6 ? '…' : ''}</div></div></div>
         <div class="c-stats"><div><label>Total strength</label><b class="v-men"></b></div><div class="wide"><label>Avg. morale</label><span class="bar"><i class="v-mor"></i></span></div><div><label>Status</label><b class="v-status"></b></div></div>
         ${btns(anyInf ? sel.find((u) => u.cls === 'inf') : sel.find((u) => u.cls === 'cav'))}`;
+    } else if (S.inspect.side === 'F') {
+      const u = S.inspect, C = A.CORPS[u.corps];
+      card.innerHTML = `<div class="c-head"><span class="c-sym">${symSVG(u, 44, 28)}</span>
+        <div><div class="c-name">${u.name}</div><div class="c-sub">${u.cls === 'staff' ? 'Emperor of the French' : 'Général ' + u.cmd} · ${u.T.label} · <span style="color:${C.color}">■</span> ${C.name}</div></div></div>
+        <div class="c-stats"><div><label>Strength</label><b class="v-men"></b></div><div><label>Status</label><b class="v-status"></b></div></div>
+        <div class="c-terrain">Not under your command: ${u.cls === 'staff' ? 'the Emperor directs the battle himself' : C.cmd + ' follows the Emperor\'s orders'}.</div>`;
     } else {
       const u = S.inspect, C = A.CORPS[u.corps];
       card.innerHTML = `<div class="c-head enemy"><span class="c-sym">${symSVG(u, 44, 28)}</span>
@@ -500,6 +521,7 @@ A.UI = (function () {
 
   return {
     init, frame, dispatch, banner, buildOOB, centerOn, toggleHelp,
+    clearBanners() { bannerQ.length = 0; },
     state: S,
     onUnitDead(u) {
       S.selected = S.selected.filter((x) => x !== u);

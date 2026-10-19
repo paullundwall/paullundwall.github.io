@@ -238,3 +238,92 @@ A.HISTORY = {
   fr: { losses: 8800, text: 'about 1,300 killed, 6,900 wounded and 570 captured' },
   al: { losses: 27000, text: 'about 16,000 killed and wounded, 11,000 prisoners and 180 guns' },
 };
+
+// Who the player commands. units/corps limit what can be ordered; targets are
+// the objectives that judge the commander personally at the end of the day.
+A.COMMANDERS = [
+  {
+    id: 'nap', name: "L'Empereur", sub: 'The whole Grande Armée',
+    objectives: [
+      'Hold <b>Telnitz</b> and <b>Sokolnitz</b> with Legrand until Davout\'s III Corps arrives from Raigern.',
+      'Keep <b>Soult</b> hidden in the fog. When the Allied columns have left, storm the <b>Pratzen</b>: Pratze, the Pratzeberg and Staré Vinohrady.',
+      'Hold the <b>Santon</b> and the Olmütz road against Bagration with Lannes and Murat.',
+      'Never lose the <b>Zuran</b>, your command post.',
+    ],
+  },
+  {
+    id: 'soult', name: 'Maréchal Soult', sub: 'IVe Corps — Vandamme and Saint-Hilaire', units: ['ivan', 'ishi', 'iart'],
+    objectives: [
+      'Wait in the fog below Puntowitz while the Allied columns march off the Pratzen towards Telnitz.',
+      'When the heights empty, storm them: Saint-Hilaire on <b>Pratze</b> and the <b>Pratzeberg</b>, Vandamme on <b>Staré Vinohrady</b>.',
+      'Hold the plateau against Kutuzov and the Russian Guard, then wheel south on <b>Aujezd</b> to trap the Allied left.',
+    ],
+    targets: ['pratze', 'pratzeberg', 'vino', 'aujezd'],
+  },
+  {
+    id: 'davout', name: 'Maréchal Davout', sub: 'The right wing — Legrand, then the IIIe Corps', corps: ['III'], units: ['ileg', 'itir', 'i3e', 'imar'],
+    objectives: [
+      'With Legrand\'s thin division, hold <b>Telnitz</b> and <b>Sokolnitz</b> against three Allied columns.',
+      'Your III Corps comes up the Raigern road from about 8 h 10: Bourcier\'s dragoons first, then Friant.',
+      'Pin the Allied left in the Goldbach valley until Soult is on the Pratzen behind it. Keep <b>Kobelnitz</b>, and never let it through to the Brünn road.',
+    ],
+    targets: ['tel', 'sok', 'kob'],
+  },
+  {
+    id: 'lannes', name: 'Maréchal Lannes', sub: 'Ve Corps — Suchet and Caffarelli', corps: ['V'],
+    objectives: [
+      'Hold the <b>Santon</b> at all costs: the left of the army rests on it.',
+      'Advance astride the Olmütz road against Bagration and take <b>Blasowitz</b>.',
+      'Keep <b>Girzikowitz</b> out of enemy hands.',
+    ],
+    targets: ['santon', 'blas', 'girz'],
+  },
+  {
+    id: 'murat', name: 'Maréchal Murat', sub: 'Réserve de cavalerie — Kellermann, Walther, Nansouty, d\'Hautpoul', corps: ['RC'],
+    objectives: [
+      'Cover the plain between the Santon and Blasowitz with the cavalry reserve.',
+      'Throw back Liechtenstein\'s squadrons and Bagration\'s horse when they come on.',
+      'Help Lannes take <b>Blasowitz</b>, and keep the <b>Zuran</b> and <b>Girzikowitz</b> safe.',
+    ],
+    targets: ['blas', 'girz', 'zuran'],
+  },
+  {
+    id: 'bernadotte', name: 'Maréchal Bernadotte', sub: 'Ier Corps — Rivaud and Drouet', corps: ['I'],
+    objectives: [
+      'Cross the Goldbach at Girzikowitz behind Vandamme.',
+      'Support Soult on the northern Pratzen: take and hold <b>Staré Vinohrady</b> and <b>Blasowitz</b>.',
+      'Stand firm when the Russian Imperial Guard counter-attacks.',
+    ],
+    targets: ['girz', 'vino', 'blas'],
+  },
+];
+
+// The historical moves of the French corps the player does not command.
+// Without the Emperor's eye on them they would fare worse than history, so they are a little steadier.
+A.FRENCH_AI_Q = 1.15;
+A.FPLANS = {
+  v17: [{ t: 420, mode: 'hold', x: 5600, y: 3430 }],
+  vsan: [{ t: 420, mode: 'hold', x: 5720, y: 3520 }],
+  vsuc: [{ t: 420, mode: 'hold', x: 4900, y: 3450 }, { t: 560, mode: 'attack', x: 6600, y: 3200 }, { t: 660, mode: 'attack', x: 8300, y: 2700 }],
+  vcaf: [{ t: 420, mode: 'hold', x: 5000, y: 4350 }, { t: 560, mode: 'attack', x: 7000, y: 4300 }, { t: 640, mode: 'attack', x: 7960, y: 5440 }, { t: 720, mode: 'attack', x: 8540, y: 4900 }],
+  rkel: [{ t: 420, mode: 'hold', x: 5450, y: 4800 }, { t: 680, mode: 'attack', x: 6800, y: 4500 }],
+  rwal: [{ t: 420, mode: 'hold', x: 4550, y: 4550 }, { t: 700, mode: 'attack', x: 7100, y: 4900 }],
+  rnan: [{ t: 420, mode: 'hold', x: 4150, y: 4250 }, { t: 640, mode: 'attack', x: 7400, y: 4200 }],
+  rhau: [{ t: 420, mode: 'hold', x: 3850, y: 4650 }, { t: 680, mode: 'attack', x: 7700, y: 5100 }],
+  iriv: [{ t: 420, mode: 'hold', x: 4950, y: 5250 }, { t: 560, mode: 'march', x: 6100, y: 5900 }, { t: 620, mode: 'attack', x: 7740, y: 6400 }],
+  idro: [{ t: 420, mode: 'hold', x: 4150, y: 5000 }, { t: 580, mode: 'march', x: 5900, y: 6500 }, { t: 680, mode: 'attack', x: 7400, y: 7000 }],
+  ivan: [{ t: 420, mode: 'hold', x: 4700, y: 6250 }, { t: 535, mode: 'attack', x: 7740, y: 6400 }],
+  ishi: [{ t: 420, mode: 'hold', x: 4150, y: 7050 }, { t: 535, mode: 'attack', x: 5990, y: 8200 }, { t: 620, mode: 'attack', x: 6060, y: 9660 }, { t: 800, mode: 'attack', x: 5690, y: 12200 }],
+  iart: [{ t: 420, mode: 'hold', x: 4050, y: 6450 }, { t: 570, mode: 'march', x: 5700, y: 8300 }],
+  ileg: [{ t: 420, mode: 'hold', x: 3070, y: 11050 }],
+  itir: [{ t: 420, mode: 'hold', x: 2980, y: 11150 }],
+  i3e: [{ t: 420, mode: 'hold', x: 2500, y: 12620 }],
+  imar: [{ t: 420, mode: 'hold', x: 2000, y: 11850 }],
+  ginf: [{ t: 420, mode: 'hold', x: 3850, y: 5650 }, { t: 600, mode: 'march', x: 5500, y: 7400 }, { t: 660, mode: 'attack', x: 6600, y: 8000 }],
+  gcav: [{ t: 420, mode: 'hold', x: 3600, y: 5950 }, { t: 620, mode: 'march', x: 6000, y: 7000 }, { t: 700, mode: 'attack', x: 7400, y: 6900 }],
+  gart: [{ t: 420, mode: 'hold', x: 4150, y: 5550 }, { t: 620, mode: 'march', x: 5700, y: 7300 }],
+  oud: [{ t: 420, mode: 'hold', x: 3350, y: 6450 }, { t: 500, mode: 'march', x: 3500, y: 9300 }, { t: 560, mode: 'attack', x: 3100, y: 10800 }],
+  dbou: [{ t: 495, mode: 'hold', x: 1500, y: 12250 }],
+  dheu: [{ t: 510, mode: 'attack', x: 2400, y: 12500 }],
+  dfri: [{ t: 545, mode: 'hold', x: 1900, y: 11050 }, { t: 575, mode: 'attack', x: 3070, y: 11100 }],
+};

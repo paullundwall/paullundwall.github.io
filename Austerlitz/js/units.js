@@ -57,6 +57,9 @@
       this.underFire = 0;
       this.fireTime = 0;
       this.losses = 0;
+      this.inflicted = 0;
+      this.routs = 0;
+      this.firstRout = null;
       this.prisoners = 0;
       this.pendCas = 0;
       this.pendMor = 0;
@@ -331,7 +334,11 @@
     if (e) {
       const ax = u.x - e.x, ay = u.y - e.y, l = Math.hypot(ax, ay) || 1;
       tx = u.x + (ax / l) * 400; ty = u.y + (ay / l) * 400;
-      if (!u.fleeing) { u.fleeing = true; A.UI && A.UI.dispatch('Imperial escort', 'The Emperor falls back before the enemy!', 'warn', u); }
+      if (!u.fleeing) {
+        u.fleeing = true;
+        A.UI && A.UI.dispatch('Imperial escort', 'The Emperor falls back before the enemy!', 'warn', u);
+        A.Report.note('Enemy troops come within musket shot of the Emperor, who is forced to fall back.', 'bad', 3, u, 'emperor');
+      }
     } else {
       u.fleeing = false;
       if (u.order && u.order.type === 'move') { tx = u.order.x; ty = u.order.y; }
@@ -513,6 +520,7 @@
         let pa = meleePower(a, b) / a.melee.length, pb = meleePower(b, a) / b.melee.length;
         const casB = 4.5 * pa * dt * (b.routed ? 2.5 : 1), casA = 4.5 * pb * dt * (a.routed ? 2.5 : 1);
         b.pendCas += casB; a.pendCas += casA;
+        a.inflicted += casB; b.inflicted += casA;
         if (b.routed) b.pendPris += casB * 0.7;
         if (a.routed) a.pendPris += casA * 0.7;
         a.mFoe += pb; b.mFoe += pa;
@@ -577,6 +585,7 @@
       const k = arc * mor * u.q * A.NATIONS[u.nation].fire * elevB * cover * (u.formT > 0 ? 0.3 : 1);
       const cas = (musk * vM + gun * vG) * k * dt;
       t.pendCas += cas;
+      u.inflicted += cas;
       t.pendMor += ((gun ? 0.5 : 0) + (musk ? 0.4 : 0)) * dt * arc / t.T.morale;
       t.underFire = 0.6;
       u.firing = (musk ? 1 : 0) | (gun ? 2 : 0);
@@ -589,6 +598,14 @@
   function rout(u) {
     const G = A.Game;
     u.routed = true;
+    u.routs++;
+    if (u.firstRout == null) {
+      u.firstRout = G.t;
+      if (u.men0 >= 3000 || u.type === 'guard' || u.type === 'guardcav') {
+        const elite = u.type === 'guard' || u.type === 'guardcav';
+        A.Report.note(`${u.name} (${u.cmd}) is routed.`, u.side === 'F' ? 'bad' : 'good', elite ? 4 : 2, u);
+      }
+    }
     u.order = null;
     u.formTo = null;
     u.formT = 0;
@@ -616,7 +633,11 @@
     if (u.dead) return;
     u.dead = true;
     if (u.guns && why !== 'escaped') G.stats.guns[u.side] += u.guns;
-    if (why !== 'escaped') { G.stats.pris[u.side] += u.men * 0.35; G.stats.loss[u.side] += u.men * 0.5; }
+    if (why !== 'escaped') {
+      G.stats.pris[u.side] += u.men * 0.35; G.stats.loss[u.side] += u.men * 0.5;
+      A.Report.loss(u.side, u.men * 0.5);
+      if (u.men0 >= 2500) A.Report.note(`${u.name} (${u.cmd}) is destroyed as a fighting force.`, u.side === 'F' ? 'bad' : 'good', 3, u);
+    }
     else G.stats.escaped[u.side] += u.men;
     for (const o of G.units) if (o.melee.length) o.melee = o.melee.filter((m) => m !== u);
     if (u.side === 'F') A.UI.dispatch(u.cmd, `${u.name} has ceased to exist as a fighting force.`, 'bad', u);
@@ -634,6 +655,7 @@
         u.men -= c;
         u.losses += c;
         G.stats.loss[u.side] += c;
+        A.Report.loss(u.side, c);
         const pr = Math.min(u.pendPris, c);
         u.prisoners += pr;
         G.stats.pris[u.side] += pr;
@@ -656,20 +678,25 @@
   function objectives() {
     const G = A.Game;
     for (const o of G.objectives) {
-      let f = 0, a = 0, aInf = 0;
+      let f = 0, a = 0, aInf = 0, m = 0;
       for (const u of G.units) {
         if (u.dead || u.routed || u.cls === 'staff') continue;
         if (A.dist(u.x, u.y, o.x, o.y) < o.r + u.r * 0.5) {
-          if (u.side === 'F') f += u.men;
+          if (u.side === 'F') { f += u.men; if (A.controls(u)) m += u.men; }
           else { a += u.men; if (u.cls === 'inf') aInf += u.men; }
         }
       }
       o.contested = f > 0 && a > 0;
+      if (o.owner === 'F' && m >= 300) o.mine = true;
       const takeA = o.hq ? a >= 3000 && aInf >= 1500 : a >= 300;
       const now = f >= 300 && !a ? 'F' : takeA && !f ? 'A' : o.owner;
       if (now !== o.owner) {
         o.owner = now;
+        o.mine = now === 'F' && m >= 300;
         o.since = G.t;
+        const w = o.pts + (o.plateau || o.hq ? 1 : 0);
+        if (now === 'F' && o.plateau && !G.firstPlateau) G.firstPlateau = { t: G.t, name: o.name };
+        A.Report.note(now === 'F' ? `French troops take ${o.name}.` : `${o.name} falls to the Allies.`, now === 'F' ? 'good' : 'bad', w, o, 'obj:' + o.id);
         if (now === 'F') A.UI.dispatch('Quartier général', `Our troops are masters of ${o.name}.`, 'good', o);
         else A.UI.dispatch('Quartier général', `The enemy has taken ${o.name}!`, 'bad', o);
       }
